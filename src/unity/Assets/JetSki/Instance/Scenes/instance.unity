@@ -129,7 +129,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &83460962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -197,7 +197,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _lerpAlpha: 1
   _targetPos: {fileID: 1998311434}
-  _targetLookatPos: {fileID: 1550176082}
+  _targetLookatPos: {fileID: 599434069}
   _lookatOffset: 1
   _minHeightAboveWater: 1
 --- !u!114 &227134468
@@ -261,7 +261,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 227134465}
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.70710677}
-  m_LocalPosition: {x: -171.2, y: 93.7, z: 208.7}
+  m_LocalPosition: {x: 106.1, y: 10.3, z: 263.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -327,7 +327,7 @@ MonoBehaviour:
   volumeTrigger: {fileID: 227134470}
   volumeLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 16
   stopNaNPropagation: 1
   antialiasingMode: 2
   temporalAntialiasing:
@@ -371,6 +371,11 @@ MonoBehaviour:
   m_BeforeTransparentBundles: []
   m_BeforeStackBundles: []
   m_AfterStackBundles: []
+--- !u!4 &599434069 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4341219009766782, guid: 71ede3c2ab0b7cb43b7dad6ae3b6190b,
+    type: 2}
+  m_PrefabInternal: {fileID: 1228733826}
 --- !u!1 &723498130
 GameObject:
   m_ObjectHideFlags: 0
@@ -988,7 +993,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4274299234749796, guid: 71ede3c2ab0b7cb43b7dad6ae3b6190b, type: 2}
       propertyPath: m_LocalPosition.x
-      value: 8.35
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4274299234749796, guid: 71ede3c2ab0b7cb43b7dad6ae3b6190b, type: 2}
       propertyPath: m_LocalPosition.y
@@ -1001,6 +1006,34 @@ Prefab:
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 71ede3c2ab0b7cb43b7dad6ae3b6190b, type: 2}
   m_IsPrefabAsset: 0
+--- !u!1 &1371010949
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1371010950}
+  m_Layer: 0
+  m_Name: Server_Player
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1371010950
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1371010949}
+  m_LocalRotation: {x: -0, y: 0.8934106, z: -0, w: 0.449241}
+  m_LocalPosition: {x: 160.1, y: 5, z: 271.6}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1550176079
 GameObject:
   m_ObjectHideFlags: 0
@@ -1018,7 +1051,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1550176080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1048,6 +1081,11 @@ MonoBehaviour:
   _steerBias: 0
   RocketThrust: {x: 0, y: 0, z: 100000}
   WaterThrust: NaN
+  client_enable_corrections: 1
+  client_correction_smoothing: 1
+  client_send_redundant_inputs: 1
+  server_player: {fileID: 0}
+  server_snapshot_rate: 0
 --- !u!54 &1550176081
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1321,7 +1359,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7581c8217e105de4b83ca0ce4f8fa8c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _rasterMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  _rasterMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 3}
   _waveShader: {fileID: 4800000, guid: 680b41329a8923e40a8f9d6ca86f60a8, type: 3}
   _spectrum: {fileID: 11400000, guid: b066d8398541b1844a63a9c12919e528, type: 2}
   _componentsPerOctave: 5

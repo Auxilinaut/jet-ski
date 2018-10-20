@@ -54,12 +54,8 @@ public class BoatAlignNormal : MonoBehaviour
     public float _dragInWaterUp = 20000f;
     public float _dragInWaterRight = 20000f;
     public float _dragInWaterForward = 20000f;
-
-    bool _inWater;
-    public bool InWater { get { return _inWater; } }
-
-    Vector3 _velocityRelativeToWater;
-    public Vector3 VelocityRelativeToWater { get { return _velocityRelativeToWater; } }
+    public bool InWater { get; private set; }
+    public Vector3 VelocityRelativeToWater { get; private set; }
 
     Vector3 _displacementToBoat, _displacementToBoatLastFrame;
     bool _displacementToBoatInitd = false;
@@ -96,9 +92,31 @@ public class BoatAlignNormal : MonoBehaviour
     private uint server_tick_accumulator;
     private Queue<InputMessage> server_input_msgs;
 
+    // other
+    private string IPconnect;
+    private List<int> _pingTime = new List<int>();
+
     void Start()
     {
+        if (!_playerControlled)
+        {
+            IPconnect = "127.0.0.1";
+            this.StartCoroutine(PingUpdate(IPconnect));
+
+            _rb = this.server_player.GetComponent<Rigidbody>();
+
+            this.server_tick_number = 0;
+            this.server_tick_accumulator = 0;
+            this.server_input_msgs = new Queue<InputMessage>();
+
+            return;
+        }
+
+        IPconnect = "127.0.0.1";
+        this.StartCoroutine(PingUpdate(IPconnect));
+
         _rb = GetComponent<Rigidbody>();
+
         this.client_timer = 0.0f;
         this.client_tick_number = 0;
         this.client_last_received_state_tick = 0;
@@ -111,13 +129,14 @@ public class BoatAlignNormal : MonoBehaviour
 
     void Update()
     {
+        if(_pingTime.Count==0)
+        {
+            return;
+        }
         float dt = Time.fixedDeltaTime;
         float client_timer = this.client_timer;
         uint client_tick_number = this.client_tick_number;
         client_timer += Time.deltaTime;
-
-        //float forward = _throttleBias;
-        //float sideways = _steerBias;
 
         if (_playerControlled)
         {
@@ -134,8 +153,8 @@ public class BoatAlignNormal : MonoBehaviour
                 inputs.sideways = 0;
                 inputs.forward += Input.GetAxis("Vertical");
                 inputs.sideways += Input.GetAxis("Horizontal");
-                RocketBoosting = Input.GetMouseButton(0) | Input.GetButton("Fire2");
-                WaterBoosting = Input.GetMouseButton(1) | Input.GetButton("Fire1");
+                inputs.rocketBoosting = Input.GetMouseButton(0) | Input.GetButton("Fire2");
+                inputs.waterBoosting = Input.GetMouseButton(1) | Input.GetButton("Fire1");
                 this.client_input_buffer[buffer_slot] = inputs;
 
                 // store state for this tick, then use current state + input to step simulation
@@ -147,7 +166,7 @@ public class BoatAlignNormal : MonoBehaviour
 
                 // send input packet to server
                 InputMessage input_msg;
-                input_msg.delivery_time = Time.time + this.latency;
+                input_msg.delivery_time = Time.time + this._pingTime[this._pingTime.Count - 1];
                 input_msg.start_tick_number = this.client_send_redundant_inputs ? this.client_last_received_state_tick : client_tick_number;
                 input_msg.inputs = new List<Inputs>();
 
@@ -157,7 +176,7 @@ public class BoatAlignNormal : MonoBehaviour
                 }
 
                 //***SEND THE STUFF (UNIMPLEMENTED)***
-
+                
                 //this.server_input_msgs.Enqueue(input_msg);
 
                 ++client_tick_number;
@@ -244,9 +263,10 @@ public class BoatAlignNormal : MonoBehaviour
         {
             uint server_tick_number = this.server_tick_number;
             uint server_tick_accumulator = this.server_tick_accumulator;
-            Rigidbody server_rigidbody = this.server_player.GetComponent<Rigidbody>();
+           // Rigidbody server_rigidbody = this.server_player.GetComponent<Rigidbody>();
 
             //***RECEIVE STUFF (UNIMPLEMENTED)***
+
 
             while (this.server_input_msgs.Count > 0 && Time.time >= this.server_input_msgs.Peek().delivery_time)
             {
@@ -266,7 +286,7 @@ public class BoatAlignNormal : MonoBehaviour
                     // run through all relevant inputs, and step player forward
                     for (int i = (int)start_i; i < input_msg.inputs.Count; ++i)
                     {
-                        this.PrePhysicsStep(server_rigidbody, input_msg.inputs[i]);
+                        this.PrePhysicsStep(_rb, input_msg.inputs[i]);
                         Physics.Simulate(dt);
 
                         ++server_tick_accumulator;
@@ -275,15 +295,15 @@ public class BoatAlignNormal : MonoBehaviour
                             server_tick_accumulator = 0;
 
                             StateMessage state_msg;
-                            state_msg.delivery_time = Time.time + this.latency;
+                            state_msg.delivery_time = Time.time + this._pingTime[this._pingTime.Count - 1];
                             state_msg.tick_number = server_tick_number;
-                            state_msg.position = server_rigidbody.position;
-                            state_msg.rotation = server_rigidbody.rotation;
-                            state_msg.velocity = server_rigidbody.velocity;
-                            state_msg.angular_velocity = server_rigidbody.angularVelocity;
+                            state_msg.position = _rb.position;
+                            state_msg.rotation = _rb.rotation;
+                            state_msg.velocity = _rb.velocity;
+                            state_msg.angular_velocity = _rb.angularVelocity;
 
                             //***SEND THE STUFF (UNIMPLEMENTED)***
-                            //this.client_state_msgs.Enqueue(state_msg);
+                            this.client_state_msgs.Enqueue(state_msg);
                         }
                     }
 
@@ -322,14 +342,14 @@ public class BoatAlignNormal : MonoBehaviour
         if (!colProvider.SampleNormal(ref undispPos, ref normal, _boatWidth)) return;
         Debug.DrawLine(transform.position, transform.position + 5f * normal);
 
-        _velocityRelativeToWater = _rb.velocity - velWater;
+        VelocityRelativeToWater = _rb.velocity - velWater;
 
         var dispPos = undispPos + _displacementToBoat;
         float height = dispPos.y;
 
         float bottomDepth = height - transform.position.y - _bottomH;
 
-        _inWater = bottomDepth > 0f;
+        InWater = bottomDepth > 0f;
         
         if (inputs.waterBoosting)
         {
@@ -357,7 +377,7 @@ public class BoatAlignNormal : MonoBehaviour
             //_rb.AddRelativeForce((Vector3.Scale(Vector3.right, RocketThrust) * (sideways * 0.5f)), ForceMode.Acceleration);
         }
 
-        if (!_inWater)
+        if (!InWater)
         {
             return;
         }
@@ -368,9 +388,9 @@ public class BoatAlignNormal : MonoBehaviour
 
         // apply drag relative to water
         var forcePosition = _rb.position + _forceHeightOffset * Vector3.up;
-        _rb.AddForceAtPosition(Vector3.up * Vector3.Dot(Vector3.up, -_velocityRelativeToWater) * _dragInWaterUp, forcePosition, ForceMode.Acceleration);
-        _rb.AddForceAtPosition(transform.right * Vector3.Dot(transform.right, -_velocityRelativeToWater) * _dragInWaterRight, forcePosition, ForceMode.Acceleration);
-        _rb.AddForceAtPosition(transform.forward * Vector3.Dot(transform.forward, -_velocityRelativeToWater) * _dragInWaterForward, forcePosition, ForceMode.Acceleration);
+        _rb.AddForceAtPosition(Vector3.up * Vector3.Dot(Vector3.up, -VelocityRelativeToWater) * _dragInWaterUp, forcePosition, ForceMode.Acceleration);
+        _rb.AddForceAtPosition(transform.right * Vector3.Dot(transform.right, -VelocityRelativeToWater) * _dragInWaterRight, forcePosition, ForceMode.Acceleration);
+        _rb.AddForceAtPosition(transform.forward * Vector3.Dot(transform.forward, -VelocityRelativeToWater) * _dragInWaterForward, forcePosition, ForceMode.Acceleration);
 
         _rb.AddForceAtPosition(transform.forward * _enginePower * inputs.forward, forcePosition, ForceMode.Acceleration);
         _rb.AddTorque(transform.up * _turnPower * inputs.sideways, ForceMode.Acceleration);
@@ -396,5 +416,19 @@ public class BoatAlignNormal : MonoBehaviour
 
         this.PrePhysicsStep(rigidbody, inputs);
         Physics.Simulate(dt);
+    }
+
+    System.Collections.IEnumerator PingUpdate(string ip)
+    {
+        RestartLoop:
+        var ping = new Ping(ip);
+
+        yield return new WaitForSeconds(1f);
+        while (!ping.isDone) yield return null;
+
+        Debug.Log(ping.time);
+        _pingTime.Add(ping.time);
+
+        goto RestartLoop;
     }
 }
