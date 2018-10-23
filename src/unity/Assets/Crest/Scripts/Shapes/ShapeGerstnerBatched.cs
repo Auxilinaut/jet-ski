@@ -274,7 +274,7 @@ namespace Crest
         // move these waves between lods without pops when the camera changes heights and the lods need to change scale.
         void AddDrawShapeCommandBuffer(int lodIndex)
         {
-            return;
+            return; //---SORRY BUT CAN'T FIX THIS RIGHT NOW---
             if(_cmdBufWaveAdded[lodIndex] != CmdBufStatus.Attached)
             {
                 OceanRenderer.Instance._camsAnimWaves[lodIndex].AddCommandBuffer(CameraEvent.BeforeForwardAlpha, _renderWaveShapeCmdBufs[lodIndex]);
@@ -293,7 +293,7 @@ namespace Crest
 
         void AddDrawShapeBigWavelengthsCommandBuffer()
         {
-            return;
+            return;  //---SORRY BUT CAN'T FIX THIS RIGHT NOW---
             if(_cmdBufBigWavesAdded != CmdBufStatus.Attached)
             {
                 int lastLod = OceanRenderer.Instance.CurrentLodCount - 1;
