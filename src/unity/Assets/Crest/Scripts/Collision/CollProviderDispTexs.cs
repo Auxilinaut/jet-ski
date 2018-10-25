@@ -81,20 +81,20 @@ namespace Crest
         public bool ComputeUndisplacedPosition(ref Vector3 worldPos, ref Vector3 undisplacedWorldPos)
         {
             // fpi - guess should converge to location that displaces to the target position
-            Vector3 guess = worldPos;
             // 2 iterations was enough to get very close when chop = 1, added 2 more which should be
             // sufficient for most applications. for high chop values or really stormy conditions there may
             // be some error here. one could also terminate iteration based on the size of the error, this is
             // worth trying but is left as future work for now.
+            /*Vector3 guess = worldPos;
             Vector3 disp = Vector3.zero;
             for (int i = 0; i < 4 && SampleDisplacement(ref guess, ref disp); i++)
             {
                 Vector3 error = guess + disp - worldPos;
                 guess.x -= error.x;
                 guess.z -= error.z;
-            }
-
-            undisplacedWorldPos = guess;
+                if (error.x > 0.00001f || error.z > 0.00001f) break;
+            }*/
+            undisplacedWorldPos = worldPos;
             undisplacedWorldPos.y = OceanRenderer.Instance.SeaLevel;
 
             return true;

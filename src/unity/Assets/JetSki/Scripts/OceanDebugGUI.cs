@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class OceanDebugGUI : MonoBehaviour
 {
     public bool _showSimTargets = false;
-    public bool _guiVisible = true;
+    public bool _guiVisible = false;
     public string _oceanMaterialAsset = "Assets/Crest/Shaders/Materials/Ocean.mat";
     static float _leftPanelWidth = 180f;
     ShapeGerstnerBatched[] gerstners;
@@ -64,27 +64,27 @@ public class OceanDebugGUI : MonoBehaviour
                 Time.timeScale = freeze ? 0f : 1f;
             }
 
-            GUI.Label(new Rect(x, y, w, h), "Gerstner weight(s)"); y += h;
+            /*GUI.Label(new Rect(x, y, w, h), "Gerstner weight(s)"); y += h;
             foreach (var gerstner in gerstners)
             {
                 gerstner._weight = GUI.HorizontalSlider(new Rect(x, y, w, h), gerstner._weight, 0f, 1f); y += h;
-            }
+            }*/
 
             _showSimTargets = GUI.Toggle(new Rect(x, y, w, h), _showSimTargets, "Show sim data"); y += h;
 
 #if UNITY_EDITOR
-            LodDataAnimatedWaves._shapeCombinePass = GUI.Toggle(new Rect(x, y, w, h), LodDataAnimatedWaves._shapeCombinePass, "Shape combine pass"); y += h;
+            LodDataAnimatedWaves._shapeCombinePass = false;//GUI.Toggle(new Rect(x, y, w, h), false, "Shape combine pass"); y += h;
 #endif
 
             int min = int.MaxValue, max = -1;
-            bool readbackShape = true;
+            bool readbackShape = false;
             foreach( var ldaw in OceanRenderer.Instance._lodDataAnimWaves)
             {
                 min = Mathf.Min(min, ldaw.DataReadback.ReadbackRequestsQueued);
                 max = Mathf.Max(max, ldaw.DataReadback.ReadbackRequestsQueued);
                 readbackShape = readbackShape && ldaw._readbackShapeForCollision;
             }
-#if UNITY_EDITOR
+/*#if UNITY_EDITOR
             if (readbackShape != GUI.Toggle(new Rect(x, y, w, h), readbackShape, "Readback coll data"))
             {
                 foreach (var ldaw in OceanRenderer.Instance._lodDataAnimWaves)
@@ -93,9 +93,9 @@ public class OceanDebugGUI : MonoBehaviour
                 }
             }
             y += h;
-#endif
+#endif*/
 
-            // generates garbage
+            /*// generates garbage
             GUI.Label(new Rect(x, y, w, h), string.Format("Coll Queue Lengths: [{0}, {1}]", min, max)); y += h;
 
             if (OceanRenderer.Instance.CachedCpuOceanQueries)
@@ -103,7 +103,7 @@ public class OceanDebugGUI : MonoBehaviour
                 var cache = OceanRenderer.Instance.CollisionProvider as CollProviderCache;
                 // generates garbage
                 GUI.Label(new Rect(x, y, w, h), string.Format("Cache hits: {0}/{1}", cache.CacheHits, cache.CacheChecks)); y += h;
-            }
+            }*/
 
             if (GUI.Button(new Rect(x, y, w, h), "Hide GUI (G)"))
             {

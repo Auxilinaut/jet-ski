@@ -297,6 +297,7 @@ namespace Crest
             if(_cmdBufBigWavesAdded != CmdBufStatus.Attached)
             {
                 int lastLod = OceanRenderer.Instance.CurrentLodCount - 1;
+                if (lastLod <=0) return;
                 OceanRenderer.Instance._camsAnimWaves[lastLod].AddCommandBuffer(CameraEvent.BeforeForwardAlpha, _renderBigWavelengthsShapeCmdBuf);
                 // the second-to-last lod will transition content into it from the last lod
                 OceanRenderer.Instance._camsAnimWaves[lastLod - 1].AddCommandBuffer(CameraEvent.BeforeForwardAlpha, _renderBigWavelengthsShapeCmdBufTransition);

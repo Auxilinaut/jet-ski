@@ -31,26 +31,26 @@ namespace Crest
         public float Gravity { get { return _gravityMultiplier * Physics.gravity.magnitude; } }
 
         [SerializeField, Tooltip("Cache CPU requests for ocean height. Requires restart.")]
-        bool _cachedCpuOceanQueries = false;
+        bool _cachedCpuOceanQueries = true;
         public bool CachedCpuOceanQueries { get { return _cachedCpuOceanQueries; } }
 
         [Header("Detail Params")]
 
         [Range(0, 15)]
         [Tooltip("Min number of verts / shape texels per wave.")]
-        public float _minTexelsPerWave = 3f;
+        public float _minTexelsPerWave = 1f;
 
         [Delayed, Tooltip("The smallest scale the ocean can be.")]
-        public float _minScale = 16f;
+        public float _minScale = 1f;
 
         [Delayed, Tooltip("The largest scale the ocean can be (-1 for unlimited).")]
-        public float _maxScale = 128f;
+        public float _maxScale = 16f;
 
         [SerializeField, Delayed, Tooltip( "Side dimension in quads of an ocean tile." )]
-        public float _baseVertDensity = 32f;
+        public float _baseVertDensity = 1f;
 
         [SerializeField, Delayed, Tooltip( "Number of ocean tile scales/LODs to generate." ), ]
-        int _lodCount = 6;
+        int _lodCount = 1;
         public int LodDataResolution { get { return (int)(4f * _baseVertDensity); } }
 
         [Header("Simulation Params")]

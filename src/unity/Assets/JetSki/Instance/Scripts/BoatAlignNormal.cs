@@ -100,8 +100,6 @@ namespace JetSki
 
         public float _boatWidth = 2f;
 
-        Rigidbody _rb;
-
         public float _dragInWaterUp = 20000f;
         public float _dragInWaterRight = 20000f;
         public float _dragInWaterForward = 20000f;
@@ -123,13 +121,16 @@ namespace JetSki
         private bool CameraLockedOnBall = false;
 
         // client specific
-        public bool client_enable_corrections = false;
+        public GameObject client_player;
+        public GameObject client_proxy;
+        private Rigidbody client_proxy_rigidbody;
+        public bool client_enable_corrections = true;
         public bool client_correction_smoothing = false;
         public bool client_send_redundant_inputs = false;
         private float client_timer;
         private uint client_tick_number;
         private uint client_last_received_state_tick;
-        private const int c_client_buffer_size = 2048;
+        private const int c_client_buffer_size = 1024; //1024;
         private ClientState[] client_state_buffer; // client stores predicted moves here
         private Inputs[] client_input_buffer; // client stores predicted inputs here
         private Queue<StateMessage> client_state_msgs;
@@ -137,18 +138,20 @@ namespace JetSki
         private Quaternion client_rot_error;
 
         // server specific
-        public GameObject server_player;
-        public uint server_snapshot_rate = 128;
+        //public GameObject server_player;
+        Rigidbody _rb;
+        public uint server_snapshot_rate = 0; //64hz;
         private uint server_tick_number;
         private uint server_tick_accumulator;
         private Queue<InputMessage> server_input_msgs;
 
-        // other networking balogna
+        // other networking bologna
         private string IPconnect = "127.0.0.1";
         private List<int> _pingTime = new List<int>();
+        public float latency = 0.05f;
 
-        MemoryStream memoryStream = new MemoryStream();
-        BinaryFormatter bf = new BinaryFormatter();
+        //MemoryStream memoryStream = new MemoryStream();
+        //BinaryFormatter bf = new BinaryFormatter();
 
         #region Data
         public static BoatAlignNormal instance;
@@ -173,6 +176,7 @@ namespace JetSki
 
         public void Awake()
         {
+            Application.targetFrameRate = 60;
             instance = this;
 
             if (!_playerControlled)
@@ -184,20 +188,21 @@ namespace JetSki
             {
                 serverIp = IPAddress.Parse(IPconnect);
                 connection = new UdpConnectedClient(ip: serverIp);
-                AddClient(new IPEndPoint(serverIp, Globals.port));
+                instance.clientList.Add(new IPEndPoint(serverIp, Globals.port));
+                //AddClient(new IPEndPoint(serverIp, Globals.port));
             }
         }
 
         void Start()
         {
-            _rb = GetComponent<Rigidbody>();
-            this.StartCoroutine(PingUpdate(IPconnect));
+            //this.StartCoroutine(PingUpdate(IPconnect));
 
             if (this.isServer)
             {
                 //IPconnect = "127.0.0.1";
                 //this.StartCoroutine(PingUpdate(IPconnect));
                 //_rb = this.server_player.GetComponent<Rigidbody>();
+                _rb = GetComponent<Rigidbody>();
 
                 this.server_tick_number = 0;
                 this.server_tick_accumulator = 0;
@@ -208,7 +213,7 @@ namespace JetSki
 
             //IPconnect = "127.0.0.1";
             //this.StartCoroutine(PingUpdate(IPconnect));
-
+            this.client_proxy_rigidbody = this.client_proxy.GetComponent<Rigidbody>();
             this.client_timer = 0.0f;
             this.client_tick_number = 0;
             this.client_last_received_state_tick = 0;
@@ -219,19 +224,20 @@ namespace JetSki
             this.client_rot_error = Quaternion.identity;
         }
 
-        void Update()
+        private void Update()
         {
-            if (_pingTime.Count == 0)
+            /*if (_pingTime.Count == 0)
             {
                 return;
-            }
+            }*/
             float dt = Time.fixedDeltaTime;
-            float client_timer = this.client_timer;
-            uint client_tick_number = this.client_tick_number;
-            client_timer += Time.deltaTime;
 
-            if (!this.isServer)
+            if (_playerControlled) /* ************CLIENT UPDATE************ */
             {
+                float client_timer = this.client_timer;
+                uint client_tick_number = this.client_tick_number;
+                client_timer += Time.deltaTime;
+
                 CameraLockedOnBall = Input.GetKeyDown(KeyCode.Space) | Input.GetButtonDown("Jump");
 
                 while (client_timer >= dt)
@@ -252,13 +258,13 @@ namespace JetSki
                     // store state for this tick, then use current state + input to step simulation
                     this.ClientStoreCurrentStateAndStep(
                         ref this.client_state_buffer[buffer_slot],
-                        _rb,
+                        client_proxy_rigidbody,
                         inputs,
-                        dt);
+                        dt, client_timer);
 
                     // send input packet to server
                     InputMessage input_msg;
-                    input_msg.delivery_time = Time.time + this._pingTime[this._pingTime.Count - 1];
+                    input_msg.delivery_time = Time.time + this.latency;// + 0.1f;//this._pingTime[this._pingTime.Count - 1];
                     input_msg.start_tick_number = this.client_send_redundant_inputs ? this.client_last_received_state_tick : client_tick_number;
                     input_msg.inputs = new List<Inputs>();
 
@@ -268,23 +274,37 @@ namespace JetSki
                     }
 
                     //***SEND THE STUFF (UNTESTED)***
-                    memoryStream = new MemoryStream();
-                    bf = new BinaryFormatter();
-                    bf.Serialize(memoryStream, input_msg);
-                    connection.Send(memoryStream.ToArray(), clientList[0]);
-
+                    Debug.Log("Sending input_msg");
+                    /*Debug.Log("im delivery_time " + input_msg.delivery_time);
+                    Debug.Log("im inputs " + input_msg.inputs);
+                    Debug.Log("im start_tick_number " + input_msg.start_tick_number);*/
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        var bf = new BinaryFormatter();
+                        bf.Serialize(memoryStream, input_msg);
+                        connection.Send(memoryStream.ToArray(), clientList[0]);
+                    }
                     ++client_tick_number;
                 }
 
                 //***RECEIVE THE STUFF (UNTESTED)***
-                if (theData != null && theData.Length>0)
+                if (theData != null)
                 {
-                    memoryStream = new MemoryStream();
-                    bf = new BinaryFormatter();
-                    memoryStream.Write(theData, 0, theData.Length);
-                    memoryStream.Seek(0, 0);
-                    this.client_state_msgs.Enqueue((StateMessage)bf.Deserialize(memoryStream));
-                    theData = null;
+                    using (var memoryStream = new MemoryStream(theData))
+                    {
+                        var bf = new BinaryFormatter();
+                        //memoryStream.Write(theData, 0, theData.Length);
+                        memoryStream.Seek(0, 0);
+                        Debug.Log("Received state message");
+                        /*Debug.Log("angular_velocity " + sm.angular_velocity);
+                        Debug.Log("delivery_time " + sm.delivery_time);
+                        Debug.Log("position " + sm.position);
+                        Debug.Log("rotation " + sm.rotation);
+                        Debug.Log("tick_number " + sm.tick_number);
+                        Debug.Log("velocity " + sm.velocity);*/
+                        this.client_state_msgs.Enqueue((StateMessage)bf.Deserialize(memoryStream));
+                        theData = null;
+                    }
                 }
 
                 if (this.ClientHasStateMessage())
@@ -297,8 +317,8 @@ namespace JetSki
 
                     this.client_last_received_state_tick = state_msg.tick_number;
 
-                    //this.proxy_player.transform.position = state_msg.position;
-                    //this.proxy_player.transform.rotation = state_msg.rotation;
+                    //this.proxy_player.rigidbody.transform.position = state_msg.position;
+                    //this.proxy_player.rigidbody.transform.rotation = state_msg.rotation;
 
                     if (this.client_enable_corrections)
                     {
@@ -306,42 +326,42 @@ namespace JetSki
                         Vector3 position_error = state_msg.position - this.client_state_buffer[buffer_slot].position;
                         float rotation_error = 1.0f - Quaternion.Dot(state_msg.rotation, this.client_state_buffer[buffer_slot].rotation);
 
-                        if (position_error.sqrMagnitude > 0.0000001f ||
-                            rotation_error > 0.00001f)
+                        if (position_error.sqrMagnitude > 0.0000001f || rotation_error > 0.00001f)
                         {
                             // capture the current predicted pos for smoothing
-                            Vector3 prev_pos = _rb.position + this.client_pos_error;
-                            Quaternion prev_rot = _rb.rotation * this.client_rot_error;
+                            Vector3 prev_pos = client_proxy_rigidbody.transform.position + this.client_pos_error;
+                            Quaternion prev_rot = client_proxy_rigidbody.transform.rotation * this.client_rot_error;
 
                             // rewind & replay
-                            _rb.position = state_msg.position;
-                            _rb.rotation = state_msg.rotation;
-                            _rb.velocity = state_msg.velocity;
-                            _rb.angularVelocity = state_msg.angular_velocity;
+                            client_proxy_rigidbody.transform.position = state_msg.position;
+                            client_proxy_rigidbody.transform.rotation = state_msg.rotation;
+                            client_proxy_rigidbody.velocity = state_msg.velocity;
+                            client_proxy_rigidbody.angularVelocity = state_msg.angular_velocity;
 
                             uint rewind_tick_number = state_msg.tick_number;
+                            //StartCoroutine(DoTheShit(rewind_tick_number,dt));
                             while (rewind_tick_number < client_tick_number)
                             {
                                 buffer_slot = rewind_tick_number % c_client_buffer_size;
                                 this.ClientStoreCurrentStateAndStep(
                                     ref this.client_state_buffer[buffer_slot],
-                                    _rb,
+                                    client_proxy_rigidbody,
                                     this.client_input_buffer[buffer_slot],
-                                    dt);
+                                    dt, client_timer);
 
                                 ++rewind_tick_number;
                             }
 
                             // if more than 2ms apart, just snap
-                            if ((prev_pos - _rb.position).sqrMagnitude >= 4.0f)
+                            if ((prev_pos - client_proxy_rigidbody.transform.position).sqrMagnitude > 250.0f)//.sqrMagnitude >= 4.0f)
                             {
                                 this.client_pos_error = Vector3.zero;
                                 this.client_rot_error = Quaternion.identity;
                             }
                             else
                             {
-                                this.client_pos_error = prev_pos - _rb.position;
-                                this.client_rot_error = Quaternion.Inverse(_rb.rotation) * prev_rot;
+                                this.client_pos_error = prev_pos - client_proxy_rigidbody.transform.position;
+                                this.client_rot_error = Quaternion.Inverse(client_proxy_rigidbody.transform.rotation) * prev_rot;
                             }
                         }
                     }
@@ -361,24 +381,26 @@ namespace JetSki
                     this.client_rot_error = Quaternion.identity;
                 }
 
-                //this.smoothed_client_player.transform.position = client_rigidbody.position + this.client_pos_error;
-                //this.smoothed_client_player.transform.rotation = client_rigidbody.rotation * this.client_rot_error;
+                client_player.transform.position = client_proxy_rigidbody.transform.position + this.client_pos_error;
+                client_player.transform.rotation = client_proxy_rigidbody.transform.rotation * this.client_rot_error;
             }
-            else
+            else /* ************SERVER UPDATE************ */
             {
                 uint server_tick_number = this.server_tick_number;
                 uint server_tick_accumulator = this.server_tick_accumulator;
                 // Rigidbody server_rigidbody = this.server_player.GetComponent<Rigidbody>();
 
                 //***RECEIVE THE STUFF (UNTESTED)***
-                if (theData != null && theData.Length > 0)
+                if (theData != null)
                 {
-                    memoryStream = new MemoryStream();
-                    bf = new BinaryFormatter();
-                    memoryStream.Write(theData, 0, theData.Length);
-                    memoryStream.Seek(0, 0);
-                    this.server_input_msgs.Enqueue((InputMessage)bf.Deserialize(memoryStream));
-                    theData = null;
+                    using (var memoryStream = new MemoryStream(theData))
+                    {
+                        var bf = new BinaryFormatter();
+                        //memoryStream.Write(theData, 0, theData.Length);
+                        memoryStream.Seek(0, 0);
+                        this.server_input_msgs.Enqueue((InputMessage)bf.Deserialize(memoryStream));
+                        theData = null;
+                    }
                 }
 
                 while (this.server_input_msgs.Count > 0 && Time.time >= this.server_input_msgs.Peek().delivery_time)
@@ -399,7 +421,8 @@ namespace JetSki
                         // run through all relevant inputs, and step player forward
                         for (int i = (int)start_i; i < input_msg.inputs.Count; ++i)
                         {
-                            this.PrePhysicsStep(_rb, input_msg.inputs[i]);
+                            this.PrePhysicsStep(_rb, input_msg.inputs[i], dt, Time.deltaTime);
+                            //Physics.SyncTransforms();
                             Physics.Simulate(dt);
 
                             ++server_tick_accumulator;
@@ -408,23 +431,25 @@ namespace JetSki
                                 server_tick_accumulator = 0;
 
                                 StateMessage state_msg;
-                                state_msg.delivery_time = Time.time + this._pingTime[this._pingTime.Count-1];
+                                state_msg.delivery_time = Time.time + this.latency;// + 0.1f;//+ this._pingTime[this._pingTime.Count-1];
                                 state_msg.tick_number = server_tick_number;
-                                state_msg.position = _rb.position;
-                                state_msg.rotation = _rb.rotation;
+                                state_msg.position = _rb.transform.position;
+                                state_msg.rotation = _rb.transform.rotation;
                                 state_msg.velocity = _rb.velocity;
                                 state_msg.angular_velocity = _rb.angularVelocity;
 
                                 //***SEND THE STUFF (UNTESTED)***
-                                memoryStream = new MemoryStream();
-                                bf = new BinaryFormatter();
-                                bf.Serialize(memoryStream, state_msg);
-                                connection.Send(memoryStream.ToArray(), clientList[0]);
+                                using (var memoryStream = new MemoryStream())
+                                {
+                                    var bf = new BinaryFormatter();
+                                    bf.Serialize(memoryStream, state_msg);
+                                    connection.Send(memoryStream.ToArray(), clientList[0]);
+                                }
                             }
                         }
 
-                        //this.server_display_player.transform.position = server_rigidbody.position;
-                        //this.server_display_player.transform.rotation = server_rigidbody.rotation;
+                        //this.server_display_player.rigidbody.transform.position = server_rigidbody.position;
+                        //this.server_display_player.rigidbody.transform.rotation = server_rigidbody.rotation;
 
                         server_tick_number = max_tick + 1;
                     }
@@ -440,10 +465,34 @@ namespace JetSki
             connection.Close();
         }
 
-        private void PrePhysicsStep(Rigidbody rigidbody, Inputs inputs)
+        private void PrePhysicsStep(Rigidbody rigidbody, Inputs inputs, float fdt, float dt)
         {
+            if (inputs.waterBoosting)
+            {
+                if (inputs.forward != 0)
+                {
+                    rigidbody.AddRelativeForce(0, WaterThrust * fdt, 0, ForceMode.VelocityChange);
+                    rigidbody.AddRelativeForce(0, 0, WaterThrust * fdt * inputs.forward, ForceMode.VelocityChange);
+                    rigidbody.AddRelativeTorque(Vector3.right * WaterThrust * fdt * (inputs.forward * 0.25f), ForceMode.VelocityChange);
+                }
+                else
+                {
+                    rigidbody.AddRelativeForce(0, WaterThrust * fdt, 0, ForceMode.VelocityChange);
+                }
+
+                if (inputs.sideways != 0)
+                {
+                    rigidbody.AddRelativeTorque(Vector3.up * WaterThrust * fdt * (inputs.sideways * 0.25f), ForceMode.VelocityChange);
+                }
+            }
+
+            if (inputs.rocketBoosting)
+            {
+                rigidbody.AddRelativeForce(RocketThrust * fdt, ForceMode.VelocityChange);
+            }
+
             var colProvider = OceanRenderer.Instance.CollisionProvider;
-            var position = transform.position;
+            var position = rigidbody.transform.position;
 
             var undispPos = Vector3.zero;
             if (!colProvider.ComputeUndisplacedPosition(ref position, ref undispPos)) return;
@@ -456,45 +505,22 @@ namespace JetSki
             }
 
             // estimate water velocity
-            Vector3 velWater = (_displacementToBoat - _displacementToBoatLastFrame) / Time.deltaTime;
+            Vector3 velWater = (_displacementToBoat - _displacementToBoatLastFrame) / dt; //Time.deltaTime;
             _displacementToBoatLastFrame = _displacementToBoat;
 
             var normal = Vector3.zero;
             if (!colProvider.SampleNormal(ref undispPos, ref normal, _boatWidth)) return;
-            //Debug.DrawLine(transform.position, transform.position + 5f * normal);
+            //Debug.DrawLine(rigidbody.transform.position, rigidbody.transform.position + 5f * normal);
 
+            
             VelocityRelativeToWater = rigidbody.velocity - velWater;
 
             var dispPos = undispPos + _displacementToBoat;
             float height = dispPos.y;
 
-            float bottomDepth = height - transform.position.y - _bottomH;
+            float bottomDepth = height - rigidbody.transform.position.y - _bottomH;
 
             InWater = bottomDepth > 0f;
-
-            if (inputs.waterBoosting)
-            {
-                if (inputs.forward != 0)
-                {
-                    rigidbody.AddRelativeForce(0, WaterThrust, 0, ForceMode.Acceleration);
-                    rigidbody.AddRelativeForce(0, 0, WaterThrust * inputs.forward, ForceMode.Acceleration);
-                    rigidbody.AddRelativeTorque(Vector3.right * WaterThrust * (inputs.forward * 0.25f), ForceMode.Acceleration);
-                }
-                else
-                {
-                    rigidbody.AddRelativeForce(0, WaterThrust, 0, ForceMode.Acceleration);
-                }
-
-                if (inputs.sideways != 0)
-                {
-                    rigidbody.AddRelativeTorque(Vector3.up * WaterThrust * (inputs.sideways * 0.25f), ForceMode.Acceleration);
-                }
-            }
-
-            if (inputs.rocketBoosting)
-            {
-                rigidbody.AddRelativeForce(RocketThrust, ForceMode.Acceleration);
-            }
 
             if (!InWater)
             {
@@ -502,25 +528,24 @@ namespace JetSki
             }
 
             var buoyancy = -Physics.gravity.normalized * _buoyancyCoeff * bottomDepth * bottomDepth * bottomDepth;
-            rigidbody.AddForce(buoyancy, ForceMode.Acceleration);
+            rigidbody.AddForce(buoyancy * fdt, ForceMode.VelocityChange);
 
 
             // apply drag relative to water
-            var forcePosition = rigidbody.position + _forceHeightOffset * Vector3.up;
-            rigidbody.AddForceAtPosition(Vector3.up * Vector3.Dot(Vector3.up, -VelocityRelativeToWater) * _dragInWaterUp, forcePosition, ForceMode.Acceleration);
-            rigidbody.AddForceAtPosition(transform.right * Vector3.Dot(transform.right, -VelocityRelativeToWater) * _dragInWaterRight, forcePosition, ForceMode.Acceleration);
-            rigidbody.AddForceAtPosition(transform.forward * Vector3.Dot(transform.forward, -VelocityRelativeToWater) * _dragInWaterForward, forcePosition, ForceMode.Acceleration);
+            var forcePosition = rigidbody.transform.position + _forceHeightOffset * Vector3.up;
+            rigidbody.AddForceAtPosition(Vector3.up * Vector3.Dot(Vector3.up, -VelocityRelativeToWater) * _dragInWaterUp * fdt, forcePosition, ForceMode.VelocityChange);
+            rigidbody.AddForceAtPosition(rigidbody.transform.right * Vector3.Dot(rigidbody.transform.right, -VelocityRelativeToWater) * _dragInWaterRight * fdt, forcePosition, ForceMode.VelocityChange);
+            rigidbody.AddForceAtPosition(rigidbody.transform.forward * Vector3.Dot(rigidbody.transform.forward, -VelocityRelativeToWater) * _dragInWaterForward * fdt, forcePosition, ForceMode.VelocityChange);
+            rigidbody.AddForceAtPosition(rigidbody.transform.forward * _enginePower * inputs.forward * fdt, forcePosition, ForceMode.VelocityChange);
+            rigidbody.AddTorque(rigidbody.transform.up * _turnPower * inputs.sideways * fdt, ForceMode.VelocityChange);
 
-            rigidbody.AddForceAtPosition(transform.forward * _enginePower * inputs.forward, forcePosition, ForceMode.Acceleration);
-            rigidbody.AddTorque(transform.up * _turnPower * inputs.sideways, ForceMode.Acceleration);
-
-            //Debug.DrawLine(transform.position + Vector3.up * 5f, transform.position + 5f * (Vector3.up + transform.forward));
+            //Debug.DrawLine(rigidbody.transform.position + Vector3.up * 5f, rigidbody.transform.position + 5f * (Vector3.up + rigidbody.transform.forward));
 
             // align to normal
-            var current = transform.up;
+            var current = rigidbody.transform.up;
             var target = normal;
             var torque = Vector3.Cross(current, target);
-            rigidbody.AddTorque(torque * _boyancyTorque, ForceMode.Acceleration);
+            rigidbody.AddTorque(torque * _boyancyTorque * fdt, ForceMode.VelocityChange);
         }
 
         private bool ClientHasStateMessage()
@@ -528,21 +553,22 @@ namespace JetSki
             return this.client_state_msgs.Count > 0 && Time.time >= this.client_state_msgs.Peek().delivery_time;
         }
 
-        private void ClientStoreCurrentStateAndStep(ref ClientState current_state, Rigidbody rigidbody, Inputs inputs, float dt)
+        private void ClientStoreCurrentStateAndStep(ref ClientState current_state, Rigidbody rigidbody, Inputs inputs, float fdt, float dt)
         {
-            current_state.position = rigidbody.position;
-            current_state.rotation = rigidbody.rotation;
+            current_state.position = rigidbody.transform.position;
+            current_state.rotation = rigidbody.transform.rotation;
 
-            this.PrePhysicsStep(rigidbody, inputs);
-            Physics.Simulate(dt);
+            this.PrePhysicsStep(rigidbody, inputs, fdt, dt);
+            //Physics.SyncTransforms();
+            Physics.Simulate(fdt);
         }
 
-        System.Collections.IEnumerator PingUpdate(string ip)
+        /*System.Collections.IEnumerator PingUpdate(string ip)
         {
             RestartLoop:
             var ping = new Ping(ip);
 
-            //yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(1f);
             while (!ping.isDone) yield return null;
 
             Debug.Log(ping.time);
@@ -550,6 +576,22 @@ namespace JetSki
 
             goto RestartLoop;
         }
+
+        System.Collections.IEnumerator DoTheShit(uint rewind_tick_number, float dt)
+        {
+            while (rewind_tick_number < client_tick_number)
+            {
+                var buffer_slot = rewind_tick_number % c_client_buffer_size;
+                this.ClientStoreCurrentStateAndStep(
+                    ref this.client_state_buffer[buffer_slot],
+                    client_proxy_rigidbody,
+                    this.client_input_buffer[buffer_slot],
+                    dt);
+
+                ++rewind_tick_number;
+                yield return null;
+            }
+        }*/
 
         internal static void AddClient(IPEndPoint ipEndpoint)
         {
