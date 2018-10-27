@@ -17,7 +17,7 @@ public class LerpCam : MonoBehaviour
             targetPos.y = Mathf.Max(targetPos.y, h + _minHeightAboveWater);
         }
 
-        transform.position = Vector3.Lerp(transform.position, targetPos, _lerpAlpha * Time.fixedDeltaTime * 60f);
+        transform.position = Vector3.Lerp(transform.position, targetPos, _lerpAlpha * Time.deltaTime * 60f);
         transform.LookAt(_targetLookatPos.position + _lookatOffset * Vector3.up);
 	}
 }

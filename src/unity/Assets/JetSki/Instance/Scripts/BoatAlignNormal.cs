@@ -195,8 +195,11 @@ namespace JetSki
 
         void Start()
         {
+            /*foreach( var ldaw in OceanRenderer.Instance._lodDataAnimWaves)
+            {
+                readbackShape = readbackShape && ldaw._readbackShapeForCollision;
+            }*/
             //this.StartCoroutine(PingUpdate(IPconnect));
-
             if (this.isServer)
             {
                 //IPconnect = "127.0.0.1";
@@ -224,13 +227,13 @@ namespace JetSki
             this.client_rot_error = Quaternion.identity;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             /*if (_pingTime.Count == 0)
             {
                 return;
             }*/
-            float dt = Time.fixedDeltaTime;
+            float fdt = Time.fixedDeltaTime;
 
             if (_playerControlled) /* ************CLIENT UPDATE************ */
             {
@@ -240,9 +243,9 @@ namespace JetSki
 
                 CameraLockedOnBall = Input.GetKeyDown(KeyCode.Space) | Input.GetButtonDown("Jump");
 
-                while (client_timer >= dt)
+                while (client_timer >= fdt)
                 {
-                    client_timer -= dt;
+                    client_timer -= fdt;
 
                     uint buffer_slot = client_tick_number % c_client_buffer_size;
 
@@ -260,7 +263,7 @@ namespace JetSki
                         ref this.client_state_buffer[buffer_slot],
                         client_proxy_rigidbody,
                         inputs,
-                        dt, client_timer);
+                        fdt, client_timer);
 
                     // send input packet to server
                     InputMessage input_msg;
@@ -274,17 +277,17 @@ namespace JetSki
                     }
 
                     //***SEND THE STUFF (UNTESTED)***
-                    Debug.Log("Sending input_msg");
+                    //Debug.Log("Sending input_msg");
                     /*Debug.Log("im delivery_time " + input_msg.delivery_time);
                     Debug.Log("im inputs " + input_msg.inputs);
                     Debug.Log("im start_tick_number " + input_msg.start_tick_number);*/
-                    using (var memoryStream = new MemoryStream())
+                    /*using (var memoryStream = new MemoryStream())
                     {
                         var bf = new BinaryFormatter();
                         bf.Serialize(memoryStream, input_msg);
                         connection.Send(memoryStream.ToArray(), clientList[0]);
                     }
-                    ++client_tick_number;
+                    ++client_tick_number;*/
                 }
 
                 //***RECEIVE THE STUFF (UNTESTED)***
@@ -347,13 +350,13 @@ namespace JetSki
                                     ref this.client_state_buffer[buffer_slot],
                                     client_proxy_rigidbody,
                                     this.client_input_buffer[buffer_slot],
-                                    dt, client_timer);
+                                    fdt, client_timer);
 
                                 ++rewind_tick_number;
                             }
 
                             // if more than 2ms apart, just snap
-                            if ((prev_pos - client_proxy_rigidbody.transform.position).sqrMagnitude > 250.0f)//.sqrMagnitude >= 4.0f)
+                            if ((prev_pos - client_proxy_rigidbody.transform.position).sqrMagnitude > 16.0f)//.sqrMagnitude >= 4.0f)
                             {
                                 this.client_pos_error = Vector3.zero;
                                 this.client_rot_error = Quaternion.identity;
@@ -421,9 +424,9 @@ namespace JetSki
                         // run through all relevant inputs, and step player forward
                         for (int i = (int)start_i; i < input_msg.inputs.Count; ++i)
                         {
-                            this.PrePhysicsStep(_rb, input_msg.inputs[i], dt, Time.deltaTime);
+                            this.PrePhysicsStep(_rb, input_msg.inputs[i], fdt, Time.deltaTime);
                             //Physics.SyncTransforms();
-                            Physics.Simulate(dt);
+                            Physics.Simulate(fdt);
 
                             ++server_tick_accumulator;
                             if (server_tick_accumulator >= this.server_snapshot_rate)
@@ -505,7 +508,7 @@ namespace JetSki
             }
 
             // estimate water velocity
-            Vector3 velWater = (_displacementToBoat - _displacementToBoatLastFrame) / dt; //Time.deltaTime;
+            Vector3 velWater = (_displacementToBoat - _displacementToBoatLastFrame) / fdt; //Time.deltaTime;
             _displacementToBoatLastFrame = _displacementToBoat;
 
             var normal = Vector3.zero;

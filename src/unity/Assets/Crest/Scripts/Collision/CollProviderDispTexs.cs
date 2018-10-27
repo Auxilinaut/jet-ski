@@ -85,16 +85,16 @@ namespace Crest
             // sufficient for most applications. for high chop values or really stormy conditions there may
             // be some error here. one could also terminate iteration based on the size of the error, this is
             // worth trying but is left as future work for now.
-            /*Vector3 guess = worldPos;
+            Vector3 guess = worldPos;
             Vector3 disp = Vector3.zero;
             for (int i = 0; i < 4 && SampleDisplacement(ref guess, ref disp); i++)
             {
                 Vector3 error = guess + disp - worldPos;
                 guess.x -= error.x;
                 guess.z -= error.z;
-                if (error.x > 0.00001f || error.z > 0.00001f) break;
-            }*/
-            undisplacedWorldPos = worldPos;
+                //if (error.x > 0.00001f || error.z > 0.00001f) break;
+            }
+            undisplacedWorldPos = guess;
             undisplacedWorldPos.y = OceanRenderer.Instance.SeaLevel;
 
             return true;

@@ -17,10 +17,12 @@ public class OceanDebugGUI : MonoBehaviour
 
     private void Start()
     {
-        gerstners = FindObjectsOfType<ShapeGerstnerBatched>();
+        ToggleGUI();
+        return;
+        //gerstners = FindObjectsOfType<ShapeGerstnerBatched>();
         // i am getting the array in the reverse order compared to the hierarchy which bugs me. sort them based on sibling index,
         // which helps if the gerstners are on sibling GOs.
-        System.Array.Sort(gerstners, (a, b) => a.transform.GetSiblingIndex().CompareTo(b.transform.GetSiblingIndex()));
+        //System.Array.Sort(gerstners, (a, b) => a.transform.GetSiblingIndex().CompareTo(b.transform.GetSiblingIndex()));
     }
 
     private void Update()
@@ -64,16 +66,16 @@ public class OceanDebugGUI : MonoBehaviour
                 Time.timeScale = freeze ? 0f : 1f;
             }
 
-            /*GUI.Label(new Rect(x, y, w, h), "Gerstner weight(s)"); y += h;
+            GUI.Label(new Rect(x, y, w, h), "Gerstner weight(s)"); y += h;
             foreach (var gerstner in gerstners)
             {
                 gerstner._weight = GUI.HorizontalSlider(new Rect(x, y, w, h), gerstner._weight, 0f, 1f); y += h;
-            }*/
+            }
 
             _showSimTargets = GUI.Toggle(new Rect(x, y, w, h), _showSimTargets, "Show sim data"); y += h;
 
 #if UNITY_EDITOR
-            LodDataAnimatedWaves._shapeCombinePass = false;//GUI.Toggle(new Rect(x, y, w, h), false, "Shape combine pass"); y += h;
+            LodDataAnimatedWaves._shapeCombinePass = GUI.Toggle(new Rect(x, y, w, h), false, "Shape combine pass"); y += h;
 #endif
 
             int min = int.MaxValue, max = -1;
@@ -84,7 +86,7 @@ public class OceanDebugGUI : MonoBehaviour
                 max = Mathf.Max(max, ldaw.DataReadback.ReadbackRequestsQueued);
                 readbackShape = readbackShape && ldaw._readbackShapeForCollision;
             }
-/*#if UNITY_EDITOR
+#if UNITY_EDITOR
             if (readbackShape != GUI.Toggle(new Rect(x, y, w, h), readbackShape, "Readback coll data"))
             {
                 foreach (var ldaw in OceanRenderer.Instance._lodDataAnimWaves)
@@ -93,7 +95,7 @@ public class OceanDebugGUI : MonoBehaviour
                 }
             }
             y += h;
-#endif*/
+#endif
 
             /*// generates garbage
             GUI.Label(new Rect(x, y, w, h), string.Format("Coll Queue Lengths: [{0}, {1}]", min, max)); y += h;

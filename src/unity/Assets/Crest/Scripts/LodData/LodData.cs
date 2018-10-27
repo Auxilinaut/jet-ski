@@ -196,7 +196,7 @@ namespace Crest
         } }
         LodDataDynamicWaves _lddw;
         public LodDataDynamicWaves LDDynamicWaves { get {
-                return _lddw ?? (_lddw = OceanRenderer.Instance._camsDynWaves[LodTransform.LodIndex].GetComponent<LodDataDynamicWaves>());
+                return null;//_lddw ?? (_lddw = OceanRenderer.Instance._camsDynWaves[LodTransform.LodIndex].GetComponent<LodDataDynamicWaves>());
         } }
         LodDataFlow _ldfl;
         public LodDataFlow LDFlow { get {

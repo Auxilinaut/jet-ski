@@ -38,7 +38,7 @@ namespace Crest
 
         [Range(0, 15)]
         [Tooltip("Min number of verts / shape texels per wave.")]
-        public float _minTexelsPerWave = 1f;
+        public float _minTexelsPerWave = .1f;
 
         [Delayed, Tooltip("The smallest scale the ocean can be.")]
         public float _minScale = 1f;
@@ -47,10 +47,10 @@ namespace Crest
         public float _maxScale = 16f;
 
         [SerializeField, Delayed, Tooltip( "Side dimension in quads of an ocean tile." )]
-        public float _baseVertDensity = 1f;
+        public float _baseVertDensity = .1f;
 
         [SerializeField, Delayed, Tooltip( "Number of ocean tile scales/LODs to generate." ), ]
-        int _lodCount = 1;
+        int _lodCount = 3;
         public int LodDataResolution { get { return (int)(4f * _baseVertDensity); } }
 
         [Header("Simulation Params")]
