@@ -20,7 +20,7 @@ namespace JetSki
     #region Init
     public UdpConnectedClient(IPAddress ip = null)
     {
-      if(BoatAlignNormal.instance.isServer)
+      if(!BoatAlignNormal.instance.isClient)
       {
         connection = new UdpClient(Globals.port);
       }
@@ -45,10 +45,10 @@ namespace JetSki
         IPEndPoint ipEndpoint = null;
         byte[] data = connection.EndReceive(ar, ref ipEndpoint);
 
-        if (BoatAlignNormal.instance.isServer)
-        BoatAlignNormal.AddClient(ipEndpoint);
+        /*if (BoatAlignNormal.instance.isServer)
+        BoatAlignNormal.AddClient(ipEndpoint);*/
                 
-        BoatAlignNormal.theData = data;
+        BoatAlignNormal.HandleData(data, ipEndpoint);
 
         /*if(BoatAlignNormal.instance.isServer)
         {

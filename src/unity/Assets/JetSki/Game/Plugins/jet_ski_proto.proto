@@ -1,0 +1,92 @@
+syntax = "proto3";
+package jet_ski;
+
+option csharp_namespace = "JetSkiProto";
+
+message MyQuaternion {
+    float x = 1;
+    float y = 2;
+    float z = 3;
+    float w = 4;
+}
+
+message MyVector3 {
+    float x = 1;
+    float y = 2;
+    float z = 3;
+}
+
+message JoinServerMessage {
+    string id = 1;
+}
+
+message AcceptJoinMessage {
+    uint32 team = 1;
+    MyVector3 position = 2;
+    MyQuaternion rotation = 3;
+}
+
+message NewPlayerMessage {
+    string id = 1;
+    uint32 team = 2;
+    MyVector3 position = 3;
+    MyQuaternion rotation = 4;
+}
+
+message StartGameMessage {
+    bool start_game = 1;
+}
+
+message GameOffMessage {
+    oneof game_off {
+        AcceptJoinMessage accept_join_msg = 1;
+        NewPlayerMessage new_player_msg = 2;
+        StartGameMessage start_game_msg = 3;
+    }
+}
+
+message InputMessage {
+    float delivery_time = 1;
+    uint32 start_tick_number = 2;
+    message Inputs {
+        float forward = 1;
+        float sideways = 2;
+        bool water_boosting = 3;
+        bool rocket_boosting = 4;
+    }
+    repeated Inputs inputs = 3;
+}
+
+message StateMessage {
+    string id = 1;
+    float delivery_time = 2;
+    uint32 tick_number = 3;
+    MyVector3 position = 4;
+    MyQuaternion rotation = 5;
+    MyVector3 velocity = 6;
+    MyVector3 angular_velocity = 7;
+}
+
+message ScoreMessage {
+    string id = 1;
+    uint32 score = 2;
+    string name = 3;
+    uint32 team = 4;
+}
+
+message StopGameMessage {
+    bool stop_game = 1;
+}
+
+message GameOnMessage {
+    oneof game_on {
+        InputMessage client_input_msg = 1;
+        StateMessage server_state_msg = 2;
+        ScoreMessage score_msg = 3;
+        StopGameMessage stop_game_msg = 4;
+    }
+}
+
+message AckMessage {
+    bool ack = 1;
+}

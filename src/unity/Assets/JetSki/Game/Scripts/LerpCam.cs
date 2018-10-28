@@ -8,7 +8,7 @@ public class LerpCam : MonoBehaviour
     public float _lookatOffset = 5f;
     public float _minHeightAboveWater = 0.5f;
 
-    void Update()
+    void FixedUpdate()
     {
         Vector3 targetPos = _targetPos.position;
         float h = 0f;

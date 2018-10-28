@@ -9,83 +9,20 @@ using Crest;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
+using Google.Protobuf;
+using JetSkiProto;
+using static JetSkiProto.InputMessage.Types;
+//using static JetSkiProto.InputMessage.Types;
+//using static JetSkiProto.StateMessage.Types;
 
 namespace JetSki
 {
     public class BoatAlignNormal : MonoBehaviour
     {
-        [Serializable]
-        public struct Inputs
-        {
-            public float forward;
-            public float sideways;
-            public bool waterBoosting;
-            public bool rocketBoosting;
-        }
-
-        [Serializable]
-        public struct InputMessage: ISerializable
-        {
-            public float delivery_time;
-            public uint start_tick_number;
-            public List<Inputs> inputs;
-
-            // this method is called during serialization
-            //[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
-            public void GetObjectData(SerializationInfo info, StreamingContext context)
-            {
-                info.AddValue("delivery_time", delivery_time);
-                info.AddValue("start_tick_number", start_tick_number);
-                info.AddValue("inputs", inputs);
-            }
-
-            // this constructor is used for deserialization
-            public InputMessage(SerializationInfo info, StreamingContext text) : this()
-            {
-                delivery_time = (float)info.GetValue("delivery_time", typeof(float));
-                start_tick_number = (uint)info.GetValue("start_tick_number", typeof(uint));
-                inputs = (List<Inputs>)info.GetValue("inputs", typeof(List<Inputs>));
-            }
-        }
-
         public struct ClientState
         {
             public Vector3 position;
             public Quaternion rotation;
-        }
-
-        [Serializable]
-        public struct StateMessage: ISerializable
-        {
-            public float delivery_time;
-            public uint tick_number;
-            public SerializableVector3 position;
-            public SerializableQuaternion rotation;
-            public SerializableVector3 velocity;
-            public SerializableVector3 angular_velocity;
-
-            // this method is called during serialization
-            //[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
-            public void GetObjectData(SerializationInfo info, StreamingContext context)
-            {
-                info.AddValue("delivery_time", delivery_time);
-                info.AddValue("tick_number", tick_number);
-                info.AddValue("position", position);
-                info.AddValue("rotation", rotation);
-                info.AddValue("velocity", velocity);
-                info.AddValue("angular_velocity", angular_velocity);
-            }
-
-            // this constructor is used for deserialization
-            public StateMessage(SerializationInfo info, StreamingContext text) : this()
-            {
-                delivery_time = (float)info.GetValue("delivery_time", typeof(float));
-                tick_number = (uint)info.GetValue("tick_number", typeof(uint));
-                position = (SerializableVector3)info.GetValue("position", typeof(SerializableVector3));
-                rotation = (SerializableQuaternion)info.GetValue("rotation", typeof(SerializableQuaternion));
-                velocity = (SerializableVector3)info.GetValue("velocity", typeof(SerializableVector3));
-                angular_velocity = (SerializableVector3)info.GetValue("angular_velocity", typeof(SerializableVector3));
-            }
         }
 
         public float _bottomH = -1f;
@@ -124,39 +61,42 @@ namespace JetSki
         public GameObject client_player;
         public GameObject client_proxy;
         private Rigidbody client_proxy_rigidbody;
+
+        public GameObject other_player_prefab;
+        public GameObject[] other_player;
+        private Rigidbody[] other_player_rigidbody;
+
         public bool client_enable_corrections = true;
         public bool client_correction_smoothing = false;
         public bool client_send_redundant_inputs = false;
         private float client_timer;
         private uint client_tick_number;
         private uint client_last_received_state_tick;
-        private const int c_client_buffer_size = 1024; //1024;
+        private const int c_client_buffer_size = 32; //1024;
         private ClientState[] client_state_buffer; // client stores predicted moves here
         private Inputs[] client_input_buffer; // client stores predicted inputs here
         private Queue<StateMessage> client_state_msgs;
+        private Queue<StateMessage>[] other_player_state_msgs;
         private Vector3 client_pos_error;
         private Quaternion client_rot_error;
 
         // server specific
         //public GameObject server_player;
-        Rigidbody _rb;
+        Rigidbody[] _rb;
         public uint server_snapshot_rate = 0; //64hz;
         private uint server_tick_number;
         private uint server_tick_accumulator;
-        private Queue<InputMessage> server_input_msgs;
+        private Queue<InputMessage>[] server_input_msgs;
 
-        // other networking bologna
+        // networking 
         private string IPconnect = "127.0.0.1";
         private List<int> _pingTime = new List<int>();
-        public float latency = 0.05f;
+        public float latency = 0f;
 
-        //MemoryStream memoryStream = new MemoryStream();
-        //BinaryFormatter bf = new BinaryFormatter();
+        public bool isClient;
 
         #region Data
         public static BoatAlignNormal instance;
-
-        public bool isServer;
 
         /// <summary>
         /// IP for clients to connect to. Null if you are the server.
@@ -167,12 +107,14 @@ namespace JetSki
         /// For Clients, there is only one and it's the connection to the server.
         /// For Servers, there are many - one per connected client.
         /// </summary>
-        List<IPEndPoint> clientList = new List<IPEndPoint>();
+        public List<IPEndPoint> clientList = new List<IPEndPoint>();
 
         public static byte[] theData;
 
         UdpConnectedClient connection;
         #endregion
+
+        public bool gameOn = false;
 
         public void Awake()
         {
@@ -181,7 +123,7 @@ namespace JetSki
 
             if (!_playerControlled)
             {
-                this.isServer = true;
+                this.isClient = true;
                 connection = new UdpConnectedClient();
             }
             else
@@ -200,7 +142,7 @@ namespace JetSki
                 readbackShape = readbackShape && ldaw._readbackShapeForCollision;
             }*/
             //this.StartCoroutine(PingUpdate(IPconnect));
-            if (this.isServer)
+            if (!this.isClient)
             {
                 //IPconnect = "127.0.0.1";
                 //this.StartCoroutine(PingUpdate(IPconnect));
@@ -227,7 +169,7 @@ namespace JetSki
             this.client_rot_error = Quaternion.identity;
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             /*if (_pingTime.Count == 0)
             {
@@ -235,7 +177,7 @@ namespace JetSki
             }*/
             float fdt = Time.fixedDeltaTime;
 
-            if (_playerControlled) /* ************CLIENT UPDATE************ */
+            if (isClient) /* ************CLIENT UPDATE************ */
             {
                 float client_timer = this.client_timer;
                 uint client_tick_number = this.client_tick_number;
@@ -243,19 +185,38 @@ namespace JetSki
 
                 CameraLockedOnBall = Input.GetKeyDown(KeyCode.Space) | Input.GetButtonDown("Jump");
 
-                while (client_timer >= fdt)
+                Inputs inputs = new Inputs{
+                    Forward = 0 + Input.GetAxis("Vertical"),
+                    Sideways = 0 + Input.GetAxis("Horizontal"),
+                    RocketBoosting = Input.GetMouseButton(0) | Input.GetButton("Fire2"),
+                    WaterBoosting = Input.GetMouseButton(1) | Input.GetButton("Fire1")
+                };
+
+                //***SEND THE STUFF (UNTESTED)***
+                Debug.Log("Sending input_msg");
+                InputMessage input_msg = new InputMessage{
+                    DeliveryTime = Time.time + this.latency,// + 0.1f;//this._pingTime[this._pingTime.Count - 1],
+                    StartTickNumber = this.client_send_redundant_inputs ? this.client_last_received_state_tick : client_tick_number,
+                    Inputs = {inputs}
+                };
+
+                connection.Send(input_msg.ToByteArray(), clientList[0]);
+
+                ++client_tick_number;
+
+                /*while (client_timer >= fdt)
                 {
                     client_timer -= fdt;
 
                     uint buffer_slot = client_tick_number % c_client_buffer_size;
 
-                    Inputs inputs = new Inputs();
-                    inputs.forward = 0;
-                    inputs.sideways = 0;
-                    inputs.forward += Input.GetAxis("Vertical");
-                    inputs.sideways += Input.GetAxis("Horizontal");
-                    inputs.rocketBoosting = Input.GetMouseButton(0) | Input.GetButton("Fire2");
-                    inputs.waterBoosting = Input.GetMouseButton(1) | Input.GetButton("Fire1");
+                    Inputs inputs = new Inputs{
+                        Forward = 0 + Input.GetAxis("Vertical"),
+                        Sideways = 0 + Input.GetAxis("Horizontal"),
+                        RocketBoosting = Input.GetMouseButton(0) | Input.GetButton("Fire2"),
+                        WaterBoosting = Input.GetMouseButton(1) | Input.GetButton("Fire1")
+                    };
+                    
                     this.client_input_buffer[buffer_slot] = inputs;
 
                     // store state for this tick, then use current state + input to step simulation
@@ -265,69 +226,55 @@ namespace JetSki
                         inputs,
                         fdt, client_timer);
 
-                    // send input packet to server
-                    InputMessage input_msg;
-                    input_msg.delivery_time = Time.time + this.latency;// + 0.1f;//this._pingTime[this._pingTime.Count - 1];
-                    input_msg.start_tick_number = this.client_send_redundant_inputs ? this.client_last_received_state_tick : client_tick_number;
-                    input_msg.inputs = new List<Inputs>();
-
-                    for (uint tick = input_msg.start_tick_number; tick <= client_tick_number; ++tick)
-                    {
-                        input_msg.inputs.Add(this.client_input_buffer[tick % c_client_buffer_size]);
-                    }
-
                     //***SEND THE STUFF (UNTESTED)***
-                    //Debug.Log("Sending input_msg");
-                    /*Debug.Log("im delivery_time " + input_msg.delivery_time);
-                    Debug.Log("im inputs " + input_msg.inputs);
-                    Debug.Log("im start_tick_number " + input_msg.start_tick_number);*/
-                    /*using (var memoryStream = new MemoryStream())
+                    Debug.Log("Sending input_msg");
+                    InputMessage input_msg = new InputMessage{
+                        DeliveryTime = Time.time + this.latency,// + 0.1f;//this._pingTime[this._pingTime.Count - 1],
+                        StartTickNumber = this.client_send_redundant_inputs ? this.client_last_received_state_tick : client_tick_number,
+                        Inputs = {new Inputs ()}
+                    };
+
+                    input_msg.Inputs.Add(inputs);
+
+                    for (uint tick = input_msg.StartTickNumber; tick <= client_tick_number; ++tick)
                     {
-                        var bf = new BinaryFormatter();
-                        bf.Serialize(memoryStream, input_msg);
-                        connection.Send(memoryStream.ToArray(), clientList[0]);
+                        input_msg.Inputs.Add(this.client_input_buffer[tick % c_client_buffer_size]);
                     }
-                    ++client_tick_number;*/
-                }
+
+                    connection.Send(input_msg.ToByteArray(), clientList[0]);
+
+                    ++client_tick_number;
+                }*/
 
                 //***RECEIVE THE STUFF (UNTESTED)***
                 if (theData != null)
                 {
-                    using (var memoryStream = new MemoryStream(theData))
-                    {
-                        var bf = new BinaryFormatter();
-                        //memoryStream.Write(theData, 0, theData.Length);
-                        memoryStream.Seek(0, 0);
-                        Debug.Log("Received state message");
-                        /*Debug.Log("angular_velocity " + sm.angular_velocity);
-                        Debug.Log("delivery_time " + sm.delivery_time);
-                        Debug.Log("position " + sm.position);
-                        Debug.Log("rotation " + sm.rotation);
-                        Debug.Log("tick_number " + sm.tick_number);
-                        Debug.Log("velocity " + sm.velocity);*/
-                        this.client_state_msgs.Enqueue((StateMessage)bf.Deserialize(memoryStream));
-                        theData = null;
-                    }
+                    Debug.Log("Received state message");
+                    this.client_state_msgs.Enqueue(StateMessage.Parser.ParseFrom(theData));
+                    theData = null;
                 }
 
                 if (this.ClientHasStateMessage())
                 {
                     StateMessage state_msg = this.client_state_msgs.Dequeue();
-                    while (this.ClientHasStateMessage()) // make sure if there are any newer state messages available, we use those instead
+                    /*while (this.ClientHasStateMessage()) // make sure if there are any newer state messages available, we use those instead
                     {
                         state_msg = this.client_state_msgs.Dequeue();
-                    }
+                    }*/
 
-                    this.client_last_received_state_tick = state_msg.tick_number;
+                    this.client_last_received_state_tick = state_msg.TickNumber;
 
-                    //this.proxy_player.rigidbody.transform.position = state_msg.position;
-                    //this.proxy_player.rigidbody.transform.rotation = state_msg.rotation;
+                    client_proxy_rigidbody.transform.SetPositionAndRotation(state_msg.Position, state_msg.Rotation);
+                    //client_proxy_rigidbody.transform.position = state_msg.Position;
+                    //client_proxy_rigidbody.transform.rotation = state_msg.Rotation;
 
-                    if (this.client_enable_corrections)
+
+
+                    /*if (this.client_enable_corrections)
                     {
-                        uint buffer_slot = state_msg.tick_number % c_client_buffer_size;
-                        Vector3 position_error = state_msg.position - this.client_state_buffer[buffer_slot].position;
-                        float rotation_error = 1.0f - Quaternion.Dot(state_msg.rotation, this.client_state_buffer[buffer_slot].rotation);
+                        uint buffer_slot = state_msg.TickNumber % c_client_buffer_size;
+                        Vector3 position_error = state_msg.Position - this.client_state_buffer[buffer_slot].position;
+                        float rotation_error = 1.0f - Quaternion.Dot(state_msg.Rotation, this.client_state_buffer[buffer_slot].rotation);
 
                         if (position_error.sqrMagnitude > 0.0000001f || rotation_error > 0.00001f)
                         {
@@ -336,12 +283,12 @@ namespace JetSki
                             Quaternion prev_rot = client_proxy_rigidbody.transform.rotation * this.client_rot_error;
 
                             // rewind & replay
-                            client_proxy_rigidbody.transform.position = state_msg.position;
-                            client_proxy_rigidbody.transform.rotation = state_msg.rotation;
-                            client_proxy_rigidbody.velocity = state_msg.velocity;
-                            client_proxy_rigidbody.angularVelocity = state_msg.angular_velocity;
+                            client_proxy_rigidbody.transform.position = state_msg.Position;
+                            client_proxy_rigidbody.transform.rotation = state_msg.Rotation;
+                            client_proxy_rigidbody.velocity = state_msg.Velocity;
+                            client_proxy_rigidbody.angularVelocity = state_msg.AngularVelocity;
 
-                            uint rewind_tick_number = state_msg.tick_number;
+                            uint rewind_tick_number = state_msg.TickNumber;
                             //StartCoroutine(DoTheShit(rewind_tick_number,dt));
                             while (rewind_tick_number < client_tick_number)
                             {
@@ -356,7 +303,7 @@ namespace JetSki
                             }
 
                             // if more than 2ms apart, just snap
-                            if ((prev_pos - client_proxy_rigidbody.transform.position).sqrMagnitude > 16.0f)//.sqrMagnitude >= 4.0f)
+                            if ((prev_pos - client_proxy_rigidbody.transform.position).sqrMagnitude > 4.0f)//.sqrMagnitude >= 4.0f)
                             {
                                 this.client_pos_error = Vector3.zero;
                                 this.client_rot_error = Quaternion.identity;
@@ -367,13 +314,18 @@ namespace JetSki
                                 this.client_rot_error = Quaternion.Inverse(client_proxy_rigidbody.transform.rotation) * prev_rot;
                             }
                         }
-                    }
+                    }*/
+
+                }
+                else
+                {
+                    Debug.Log("No state message.");
                 }
 
                 this.client_timer = client_timer;
                 this.client_tick_number = client_tick_number;
 
-                if (this.client_correction_smoothing)
+                /*if (this.client_correction_smoothing)
                 {
                     this.client_pos_error *= 0.9f;
                     this.client_rot_error = Quaternion.Slerp(this.client_rot_error, Quaternion.identity, 0.1f);
@@ -382,10 +334,11 @@ namespace JetSki
                 {
                     this.client_pos_error = Vector3.zero;
                     this.client_rot_error = Quaternion.identity;
-                }
-
-                client_player.transform.position = client_proxy_rigidbody.transform.position + this.client_pos_error;
-                client_player.transform.rotation = client_proxy_rigidbody.transform.rotation * this.client_rot_error;
+                }*/
+                
+                client_player.transform.SetPositionAndRotation(client_proxy_rigidbody.transform.position, client_proxy_rigidbody.transform.rotation);
+                //client_player.transform.position = client_proxy_rigidbody.transform.position;// + this.client_pos_error;
+                //client_player.transform.rotation = client_proxy_rigidbody.transform.rotation;// * this.client_rot_error;
             }
             else /* ************SERVER UPDATE************ */
             {
@@ -396,22 +349,42 @@ namespace JetSki
                 //***RECEIVE THE STUFF (UNTESTED)***
                 if (theData != null)
                 {
-                    using (var memoryStream = new MemoryStream(theData))
-                    {
-                        var bf = new BinaryFormatter();
-                        //memoryStream.Write(theData, 0, theData.Length);
-                        memoryStream.Seek(0, 0);
-                        this.server_input_msgs.Enqueue((InputMessage)bf.Deserialize(memoryStream));
-                        theData = null;
-                    }
+                    Debug.Log("Received input message.");
+                    InputMessage input_msg = InputMessage.Parser.ParseFrom(theData);
+                    this.server_input_msgs.Enqueue();
+                    theData = null;
                 }
 
-                while (this.server_input_msgs.Count > 0 && Time.time >= this.server_input_msgs.Peek().delivery_time)
+                if (this.server_input_msgs.Count > 0)
+                {
+                    InputMessage input_msg = this.server_input_msgs.Dequeue();
+
+                    this.PrePhysicsStep(_rb, input_msg.Inputs[0], fdt, Time.deltaTime);
+                    Physics.Simulate(fdt);
+
+                    StateMessage state_msg = new StateMessage{
+                        DeliveryTime = Time.time + this.latency,// + 0.1f;//+ this._pingTime[this._pingTime.Count-1];
+                        TickNumber = server_tick_number,
+                        Position = _rb.transform.position,
+                        Rotation = _rb.transform.rotation,
+                        Velocity = _rb.velocity,
+                        AngularVelocity = _rb.angularVelocity
+                    };
+
+                    //***SEND THE STUFF (UNTESTED)***
+                    Debug.Log("Sending state message.");
+                    connection.Send(state_msg.ToByteArray(), clientList[0]);
+                }
+                else
+                {
+                    Debug.Log("No input messages.");
+                }
+                /*while (this.server_input_msgs.Count > 0 && Time.time >= this.server_input_msgs.Peek().DeliveryTime)
                 {
                     InputMessage input_msg = this.server_input_msgs.Dequeue();
 
                     // message contains an array of inputs, calculate what tick the final one is
-                    uint max_tick = input_msg.start_tick_number + (uint)input_msg.inputs.Count - 1;
+                    uint max_tick = input_msg.StartTickNumber + (uint)input_msg.Inputs.Count - 1;
 
                     // if that tick is greater than or equal to the current tick we're on, then it
                     // has inputs which are new
@@ -419,12 +392,12 @@ namespace JetSki
                     {
                         // there may be some inputs in the array that we've already had,
                         // so figure out where to start
-                        uint start_i = server_tick_number > input_msg.start_tick_number ? (server_tick_number - input_msg.start_tick_number) : 0;
+                        uint start_i = server_tick_number > input_msg.StartTickNumber ? (server_tick_number - input_msg.StartTickNumber) : 0;
 
                         // run through all relevant inputs, and step player forward
-                        for (int i = (int)start_i; i < input_msg.inputs.Count; ++i)
+                        for (int i = (int)start_i; i < input_msg.Inputs.Count; ++i)
                         {
-                            this.PrePhysicsStep(_rb, input_msg.inputs[i], fdt, Time.deltaTime);
+                            this.PrePhysicsStep(_rb, input_msg.Inputs[i], fdt, Time.deltaTime);
                             //Physics.SyncTransforms();
                             Physics.Simulate(fdt);
 
@@ -433,21 +406,17 @@ namespace JetSki
                             {
                                 server_tick_accumulator = 0;
 
-                                StateMessage state_msg;
-                                state_msg.delivery_time = Time.time + this.latency;// + 0.1f;//+ this._pingTime[this._pingTime.Count-1];
-                                state_msg.tick_number = server_tick_number;
-                                state_msg.position = _rb.transform.position;
-                                state_msg.rotation = _rb.transform.rotation;
-                                state_msg.velocity = _rb.velocity;
-                                state_msg.angular_velocity = _rb.angularVelocity;
+                                StateMessage state_msg = new StateMessage{
+                                    DeliveryTime = Time.time + this.latency,// + 0.1f;//+ this._pingTime[this._pingTime.Count-1];
+                                    TickNumber = server_tick_number,
+                                    Position = _rb.transform.position,
+                                    Rotation = _rb.transform.rotation,
+                                    Velocity = _rb.velocity,
+                                    AngularVelocity = _rb.angularVelocity
+                                };
 
                                 //***SEND THE STUFF (UNTESTED)***
-                                using (var memoryStream = new MemoryStream())
-                                {
-                                    var bf = new BinaryFormatter();
-                                    bf.Serialize(memoryStream, state_msg);
-                                    connection.Send(memoryStream.ToArray(), clientList[0]);
-                                }
+                                connection.Send(state_msg.ToByteArray(), clientList[0]);
                             }
                         }
 
@@ -456,7 +425,7 @@ namespace JetSki
 
                         server_tick_number = max_tick + 1;
                     }
-                }
+                }*/
 
                 this.server_tick_number = server_tick_number;
                 this.server_tick_accumulator = server_tick_accumulator;
@@ -470,26 +439,26 @@ namespace JetSki
 
         private void PrePhysicsStep(Rigidbody rigidbody, Inputs inputs, float fdt, float dt)
         {
-            if (inputs.waterBoosting)
+            if (inputs.WaterBoosting)
             {
-                if (inputs.forward != 0)
+                if (inputs.Forward != 0)
                 {
                     rigidbody.AddRelativeForce(0, WaterThrust * fdt, 0, ForceMode.VelocityChange);
-                    rigidbody.AddRelativeForce(0, 0, WaterThrust * fdt * inputs.forward, ForceMode.VelocityChange);
-                    rigidbody.AddRelativeTorque(Vector3.right * WaterThrust * fdt * (inputs.forward * 0.25f), ForceMode.VelocityChange);
+                    rigidbody.AddRelativeForce(0, 0, WaterThrust * fdt * inputs.Forward, ForceMode.VelocityChange);
+                    rigidbody.AddRelativeTorque(Vector3.right * WaterThrust * fdt * (inputs.Forward * 0.25f), ForceMode.VelocityChange);
                 }
                 else
                 {
                     rigidbody.AddRelativeForce(0, WaterThrust * fdt, 0, ForceMode.VelocityChange);
                 }
 
-                if (inputs.sideways != 0)
+                if (inputs.Sideways != 0)
                 {
-                    rigidbody.AddRelativeTorque(Vector3.up * WaterThrust * fdt * (inputs.sideways * 0.25f), ForceMode.VelocityChange);
+                    rigidbody.AddRelativeTorque(Vector3.up * WaterThrust * fdt * (inputs.Sideways * 0.25f), ForceMode.VelocityChange);
                 }
             }
 
-            if (inputs.rocketBoosting)
+            if (inputs.RocketBoosting)
             {
                 rigidbody.AddRelativeForce(RocketThrust * fdt, ForceMode.VelocityChange);
             }
@@ -539,8 +508,8 @@ namespace JetSki
             rigidbody.AddForceAtPosition(Vector3.up * Vector3.Dot(Vector3.up, -VelocityRelativeToWater) * _dragInWaterUp * fdt, forcePosition, ForceMode.VelocityChange);
             rigidbody.AddForceAtPosition(rigidbody.transform.right * Vector3.Dot(rigidbody.transform.right, -VelocityRelativeToWater) * _dragInWaterRight * fdt, forcePosition, ForceMode.VelocityChange);
             rigidbody.AddForceAtPosition(rigidbody.transform.forward * Vector3.Dot(rigidbody.transform.forward, -VelocityRelativeToWater) * _dragInWaterForward * fdt, forcePosition, ForceMode.VelocityChange);
-            rigidbody.AddForceAtPosition(rigidbody.transform.forward * _enginePower * inputs.forward * fdt, forcePosition, ForceMode.VelocityChange);
-            rigidbody.AddTorque(rigidbody.transform.up * _turnPower * inputs.sideways * fdt, ForceMode.VelocityChange);
+            rigidbody.AddForceAtPosition(rigidbody.transform.forward * _enginePower * inputs.Forward * fdt, forcePosition, ForceMode.VelocityChange);
+            rigidbody.AddTorque(rigidbody.transform.up * _turnPower * inputs.Sideways * fdt, ForceMode.VelocityChange);
 
             //Debug.DrawLine(rigidbody.transform.position + Vector3.up * 5f, rigidbody.transform.position + 5f * (Vector3.up + rigidbody.transform.forward));
 
@@ -553,7 +522,7 @@ namespace JetSki
 
         private bool ClientHasStateMessage()
         {
-            return this.client_state_msgs.Count > 0 && Time.time >= this.client_state_msgs.Peek().delivery_time;
+            return this.client_state_msgs.Count > 0;// && Time.time >= this.client_state_msgs.Peek().DeliveryTime;
         }
 
         private void ClientStoreCurrentStateAndStep(ref ClientState current_state, Rigidbody rigidbody, Inputs inputs, float fdt, float dt)
@@ -578,9 +547,9 @@ namespace JetSki
             _pingTime.Add(ping.time);
 
             goto RestartLoop;
-        }
+        }*/
 
-        System.Collections.IEnumerator DoTheShit(uint rewind_tick_number, float dt)
+        System.Collections.IEnumerator DoTheShit(uint rewind_tick_number, float fdt, float dt)
         {
             while (rewind_tick_number < client_tick_number)
             {
@@ -589,12 +558,12 @@ namespace JetSki
                     ref this.client_state_buffer[buffer_slot],
                     client_proxy_rigidbody,
                     this.client_input_buffer[buffer_slot],
-                    dt);
+                    fdt, dt);
 
                 ++rewind_tick_number;
                 yield return null;
             }
-        }*/
+        }
 
         internal static void AddClient(IPEndPoint ipEndpoint)
         {
@@ -622,15 +591,73 @@ namespace JetSki
             }
 
             BroadcastChatMessage(message);
-        }
+        }*/
 
-        internal static void BroadcastChatMessage(string message)
+        /*internal static void BroadcastChatMessage(string message)
         {
             foreach (var ip in instance.clientList)
             {
                 instance.connection.Send(message, ip);
             }
+        }*/
+
+        internal static void HandleData(byte[] data, IPEndPoint ipEndpoint)
+        {
+            if (instance.isClient)
+            {
+                if (instance.gameOn)
+                {
+                    GameOnMessage msg = GameOnMessage.Parser.ParseFrom(data);
+
+                    switch ((int)msg.GameOnCase)
+                    {
+                        case 1: //*****GET STATE MESSAGE (UNIMPLEMENTED)*****
+                            Debug.Log("ID: " + msg.ServerStateMsg.Id);
+                        break;
+
+                        case 2: //*****SCORE UDPATE (UNIMPLEMENTED)*****
+                            Debug.Log("Somebody scored.");
+                            Debug.Log("ID: " + msg.ScoreMsg.Id);
+                            Debug.Log("Score: " + msg.ScoreMsg.Score);
+                        break;
+
+                        case 3: //*****STOP GAME (UNTESTED)*****
+                            instance.gameOn = false;
+                        break;
+                    }
+                }
+                else
+                {
+                    GameOffMessage msg = GameOffMessage.Parser.ParseFrom(data);
+
+                    switch ((int)msg.GameOffCase)
+                    {
+                        case 1: //*****JOIN SERVER (UNIMPLEMENTED)*****
+                            Debug.Log("Joining server.");
+                            Debug.Log("Team: " + msg.AcceptJoinMsg.Team);
+                            Debug.Log("Position: " + msg.AcceptJoinMsg.Position);
+                            Debug.Log("Rotation: " + msg.AcceptJoinMsg.Rotation);
+                        break;
+
+                        case 2: //*****NEW OTHER PLAYERS (UNIMPLEMENTED)*****
+                            Debug.Log("New player joined.");
+                            Debug.Log("ID: " + msg.NewPlayerMsg.Id);
+                            Debug.Log("Team: " + msg.NewPlayerMsg.Team);
+                            Debug.Log("Position: " + msg.NewPlayerMsg.Position);
+                            Debug.Log("Rotation: " + msg.NewPlayerMsg.Rotation);
+                        break;
+
+                        case 3: //*****START GAME (UNTESTED)*****
+                            instance.gameOn = true;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+
+            }
         }
-        #endregion*/
+        //#endregion
     }
 }
