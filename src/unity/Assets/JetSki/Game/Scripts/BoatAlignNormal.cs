@@ -121,7 +121,7 @@ namespace JetSki
             Application.targetFrameRate = 60;
             instance = this;
 
-            if (!_playerControlled)
+            if (isClient)
             {
                 this.isClient = true;
                 connection = new UdpConnectedClient();
@@ -142,16 +142,20 @@ namespace JetSki
                 readbackShape = readbackShape && ldaw._readbackShapeForCollision;
             }*/
             //this.StartCoroutine(PingUpdate(IPconnect));
-            if (!this.isClient)
+            if (!isClient)
             {
                 //IPconnect = "127.0.0.1";
                 //this.StartCoroutine(PingUpdate(IPconnect));
                 //_rb = this.server_player.GetComponent<Rigidbody>();
-                _rb = GetComponent<Rigidbody>();
+                for (int i = 0; i<_rb.Length; i++)
+                {
+                    _rb = GetComponent<Rigidbody>();
+                }
+                
 
                 this.server_tick_number = 0;
                 this.server_tick_accumulator = 0;
-                this.server_input_msgs = new Queue<InputMessage>();
+                //this.server_input_msgs = new Queue<InputMessage>();
 
                 return;
             }
@@ -525,7 +529,7 @@ namespace JetSki
             return this.client_state_msgs.Count > 0;// && Time.time >= this.client_state_msgs.Peek().DeliveryTime;
         }
 
-        private void ClientStoreCurrentStateAndStep(ref ClientState current_state, Rigidbody rigidbody, Inputs inputs, float fdt, float dt)
+        /*private void ClientStoreCurrentStateAndStep(ref ClientState current_state, Rigidbody rigidbody, Inputs inputs, float fdt, float dt)
         {
             current_state.position = rigidbody.transform.position;
             current_state.rotation = rigidbody.transform.rotation;
@@ -535,7 +539,7 @@ namespace JetSki
             Physics.Simulate(fdt);
         }
 
-        /*System.Collections.IEnumerator PingUpdate(string ip)
+        System.Collections.IEnumerator PingUpdate(string ip)
         {
             RestartLoop:
             var ping = new Ping(ip);
@@ -547,7 +551,7 @@ namespace JetSki
             _pingTime.Add(ping.time);
 
             goto RestartLoop;
-        }*/
+        }
 
         System.Collections.IEnumerator DoTheShit(uint rewind_tick_number, float fdt, float dt)
         {
@@ -563,7 +567,7 @@ namespace JetSki
                 ++rewind_tick_number;
                 yield return null;
             }
-        }
+        }*/
 
         internal static void AddClient(IPEndPoint ipEndpoint)
         {
@@ -603,16 +607,68 @@ namespace JetSki
 
         internal static void HandleData(byte[] data, IPEndPoint ipEndpoint)
         {
-            if (instance.isClient)
+            if (instance.isClient) //Client Data Handler
             {
                 if (instance.gameOn)
                 {
                     GameOnMessage msg = GameOnMessage.Parser.ParseFrom(data);
-
+                    Debug.Log("GameOnMessage: " + msg.ToString());
                     switch ((int)msg.GameOnCase)
                     {
-                        case 1: //*****GET STATE MESSAGE (UNIMPLEMENTED)*****
+                        case 2: //*****GET STATE MESSAGE (UNIMPLEMENTED)*****
                             Debug.Log("ID: " + msg.ServerStateMsg.Id);
+                        break;
+
+                        case 3: //*****SCORE UDPATE (UNIMPLEMENTED)*****
+                            Debug.Log("Somebody scored.");
+                            Debug.Log("ID: " + msg.ScoreMsg.Id);
+                            Debug.Log("Score: " + msg.ScoreMsg.Score);
+                        break;
+
+                        case 4: //*****STOP GAME (UNTESTED)*****
+                            instance.gameOn = false;
+                        break;
+                    }
+                }
+                else
+                {
+                    GameOffMessage msg = GameOffMessage.Parser.ParseFrom(data);
+                    Debug.Log("GameOffMessage: " + msg.ToString());
+                    switch ((int)msg.GameOffCase)
+                    {
+                        case 1: //*****JOIN SERVER (UNIMPLEMENTED)*****
+                            Debug.Log("Joining server.");
+                            Debug.Log("Team: " + msg.AcceptJoinMsg.Team);
+                            Debug.Log("Position: " + msg.AcceptJoinMsg.Position);
+                            Debug.Log("Rotation: " + msg.AcceptJoinMsg.Rotation);
+                            instance.JoinServer(msg.AcceptJoinMsg.Team, msg.AcceptJoinMsg.Position, msg.AcceptJoinMsg.Rotation);
+                        break;
+
+                        case 2: //*****NEW OTHER PLAYERS (UNIMPLEMENTED)*****
+                            Debug.Log("New player joined.");
+                            Debug.Log("ID: " + msg.NewPlayerMsg.Id);
+                            Debug.Log("Team: " + msg.NewPlayerMsg.Team);
+                            Debug.Log("Position: " + msg.NewPlayerMsg.Position);
+                            Debug.Log("Rotation: " + msg.NewPlayerMsg.Rotation);
+                            instance.NewOtherPlayer(msg.NewPlayerMsg.Id, msg.NewPlayerMsg.Team, msg.NewPlayerMsg.Position, msg.NewPlayerMsg.Rotation);
+                        break;
+
+                        case 3: //*****START GAME (UNTESTED)*****
+                            instance.gameOn = true;
+                        break;
+                    }
+                }
+            }
+            else //Server Data Handler
+            {
+                if (instance.gameOn)
+                {
+                    GameOnMessage msg = GameOnMessage.Parser.ParseFrom(data);
+                    Debug.Log("GameOnMessage: " + msg.ToString());
+                    switch ((int)msg.GameOnCase)
+                    {
+                        case 1: //*****GET INPUT MESSAGE (UNIMPLEMENTED)*****
+                            Debug.Log("ID: " + msg.ClientInputMsg.Id);
                         break;
 
                         case 2: //*****SCORE UDPATE (UNIMPLEMENTED)*****
@@ -629,7 +685,7 @@ namespace JetSki
                 else
                 {
                     GameOffMessage msg = GameOffMessage.Parser.ParseFrom(data);
-
+                    Debug.Log("GameOffMessage: " + msg.ToString());
                     switch ((int)msg.GameOffCase)
                     {
                         case 1: //*****JOIN SERVER (UNIMPLEMENTED)*****
@@ -637,6 +693,7 @@ namespace JetSki
                             Debug.Log("Team: " + msg.AcceptJoinMsg.Team);
                             Debug.Log("Position: " + msg.AcceptJoinMsg.Position);
                             Debug.Log("Rotation: " + msg.AcceptJoinMsg.Rotation);
+                            instance.JoinServer(msg.AcceptJoinMsg.Team, msg.AcceptJoinMsg.Position, msg.AcceptJoinMsg.Rotation);
                         break;
 
                         case 2: //*****NEW OTHER PLAYERS (UNIMPLEMENTED)*****
@@ -645,6 +702,7 @@ namespace JetSki
                             Debug.Log("Team: " + msg.NewPlayerMsg.Team);
                             Debug.Log("Position: " + msg.NewPlayerMsg.Position);
                             Debug.Log("Rotation: " + msg.NewPlayerMsg.Rotation);
+                            instance.NewOtherPlayer(msg.NewPlayerMsg.Id, msg.NewPlayerMsg.Team, msg.NewPlayerMsg.Position, msg.NewPlayerMsg.Rotation);
                         break;
 
                         case 3: //*****START GAME (UNTESTED)*****
@@ -653,11 +711,27 @@ namespace JetSki
                     }
                 }
             }
-            else
-            {
-
-            }
         }
         //#endregion
+
+        //CLIENT MESSAGE HANDLERS GAMEOFF
+
+        private void JoinServer(uint team, Vector3 position, Quaternion rotation)
+        {
+
+        }
+
+        private void NewOtherPlayer(string id, uint team, Vector3 position, Quaternion rotation)
+        {
+
+        }
+
+        //SERVER MESSAGE HANDLERS GAMEON
+
+        private void ReceiveInputs()
+        {
+            
+        }
+
     }
 }

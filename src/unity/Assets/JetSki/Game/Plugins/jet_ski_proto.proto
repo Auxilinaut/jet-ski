@@ -17,13 +17,13 @@ message MyVector3 {
 }
 
 message JoinServerMessage {
-    string id = 1;
 }
 
 message AcceptJoinMessage {
-    uint32 team = 1;
-    MyVector3 position = 2;
-    MyQuaternion rotation = 3;
+    string id = 1;
+    uint32 team = 2;
+    MyVector3 position = 3;
+    MyQuaternion rotation = 4;
 }
 
 message NewPlayerMessage {
@@ -34,27 +34,32 @@ message NewPlayerMessage {
 }
 
 message StartGameMessage {
-    bool start_game = 1;
+}
+
+message AckMessage {
 }
 
 message GameOffMessage {
     oneof game_off {
-        AcceptJoinMessage accept_join_msg = 1;
-        NewPlayerMessage new_player_msg = 2;
-        StartGameMessage start_game_msg = 3;
+        JoinServerMessage join_server_msg = 1;
+        AcceptJoinMessage accept_join_msg = 2;
+        NewPlayerMessage new_player_msg = 3;
+        StartGameMessage start_game_msg = 4;
+        AckMessage ack_msg = 5;
     }
 }
 
 message InputMessage {
-    float delivery_time = 1;
-    uint32 start_tick_number = 2;
+    string id = 1;
+    float delivery_time = 2;
+    uint32 start_tick_number = 3;
     message Inputs {
         float forward = 1;
         float sideways = 2;
         bool water_boosting = 3;
         bool rocket_boosting = 4;
     }
-    repeated Inputs inputs = 3;
+    repeated Inputs inputs = 4;
 }
 
 message StateMessage {
@@ -75,7 +80,6 @@ message ScoreMessage {
 }
 
 message StopGameMessage {
-    bool stop_game = 1;
 }
 
 message GameOnMessage {
@@ -84,9 +88,6 @@ message GameOnMessage {
         StateMessage server_state_msg = 2;
         ScoreMessage score_msg = 3;
         StopGameMessage stop_game_msg = 4;
+        AckMessage ack_msg = 5;
     }
-}
-
-message AckMessage {
-    bool ack = 1;
 }
