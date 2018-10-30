@@ -16,29 +16,40 @@ message MyVector3 {
     float z = 3;
 }
 
+//client: here's my name, can I join?
 message JoinServerMessage {
+    string name = 1;
 }
 
+//server: ok here's your id, load this arena, and wait at this spot with the ball and whoever else is in there, ok?
 message AcceptJoinMessage {
-    string id = 1;
-    uint32 team = 2;
-    MyVector3 position = 3;
-    MyQuaternion rotation = 4;
+    uint32 id = 1;
+    string arena = 2;
+    uint32 team = 3;
+    MyVector3 position = 4;
+    MyQuaternion rotation = 5;
+    repeated NewPlayerMessage new_player_msg = 6;
 }
 
+//server: everybody here's another client, ok?
 message NewPlayerMessage {
-    string id = 1;
-    uint32 team = 2;
-    MyVector3 position = 3;
-    MyQuaternion rotation = 4;
+    uint32 id = 1;
+    string name = 2;
+    uint32 team = 3;
+    MyVector3 position = 4;
+    MyQuaternion rotation = 5;
 }
 
+//server: let's start, ok?
 message StartGameMessage {
 }
 
+//ok
 message AckMessage {
+    uint32 id = 1;
 }
 
+//game didn't start yet if we're sending these around
 message GameOffMessage {
     oneof game_off {
         JoinServerMessage join_server_msg = 1;
@@ -49,8 +60,9 @@ message GameOffMessage {
     }
 }
 
+//client shoots inputs at the server at over 9000 times per minute
 message InputMessage {
-    string id = 1;
+    uint32 id = 1;
     float delivery_time = 2;
     uint32 start_tick_number = 3;
     message Inputs {
@@ -62,8 +74,9 @@ message InputMessage {
     repeated Inputs inputs = 4;
 }
 
+//server tosses over states to clients
 message StateMessage {
-    string id = 1;
+    uint32 id = 1;
     float delivery_time = 2;
     uint32 tick_number = 3;
     MyVector3 position = 4;
@@ -72,16 +85,20 @@ message StateMessage {
     MyVector3 angular_velocity = 7;
 }
 
+//server: time out, I'll let you know when to start again, ok?
 message ScoreMessage {
-    string id = 1;
+    uint32 id = 1;
     uint32 score = 2;
     string name = 3;
     uint32 team = 4;
 }
 
+//server: game over, here's the winning team, ok?
 message StopGameMessage {
+    uint32 team = 1;
 }
 
+//game is underway if we're sending these around
 message GameOnMessage {
     oneof game_on {
         InputMessage client_input_msg = 1;
