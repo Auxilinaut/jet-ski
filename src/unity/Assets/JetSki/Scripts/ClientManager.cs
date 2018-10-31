@@ -74,7 +74,7 @@ namespace JetSki{
 				uint client_tick_number = this.client_tick_number;
 				client_timer += Time.deltaTime;
 
-				CameraLockedOnBall = Input.GetKeyDown(KeyCode.Space) | Input.GetButtonDown("Jump");
+				//CameraLockedOnBall = Input.GetKeyDown(KeyCode.Space) | Input.GetButtonDown("Jump");
 
 				Inputs inputs = new Inputs{
 					Forward = 0 + Input.GetAxis("Vertical"),
@@ -86,12 +86,12 @@ namespace JetSki{
 				//***SEND THE STUFF (UNTESTED)***
 				Debug.Log("Sending input_msg");
 				InputMessage input_msg = new InputMessage{
-					DeliveryTime = Time.time + this.latency,// + 0.1f;//this._pingTime[this._pingTime.Count - 1],
+					DeliveryTime = Time.time + GameManager.instance.latency,// + 0.1f;//this._pingTime[this._pingTime.Count - 1],
 					StartTickNumber = this.client_send_redundant_inputs ? this.client_last_received_state_tick : client_tick_number,
 					Inputs = {inputs}
 				};
 
-				connection.Send(input_msg.ToByteArray(), clientList[0]);
+				connection.Send(input_msg.ToByteArray(), GameManager.instance.clientList[0]);
 
 				++client_tick_number;
 
@@ -298,7 +298,7 @@ namespace JetSki{
 
         }
 
-        private void NewOtherPlayer(string id, uint team, Vector3 position, Quaternion rotation)
+        private void NewOtherPlayer(uint id, uint team, Vector3 position, Quaternion rotation)
         {
 
         }

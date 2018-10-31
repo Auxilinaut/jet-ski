@@ -20,15 +20,17 @@ namespace JetSki
     #region Init
     public UdpConnectedClient(IPAddress ip = null)
     {
-      if(!BoatAlignNormal.instance.isClient)
+      if(!GameManager.instance.isClient)
       {
         connection = new UdpClient(Globals.port);
+        connection.BeginReceive(OnServerReceive, null);
       }
       else
       {
         connection = new UdpClient(); // Auto-bind port
+        connection.BeginReceive(OnClientReceive, null);
       }
-      connection.BeginReceive(OnReceive, null);
+      
     }
 
     public void Close()
@@ -38,7 +40,7 @@ namespace JetSki
     #endregion
 
     #region API
-    void OnReceive(IAsyncResult ar)
+    void OnClientReceive(IAsyncResult ar)
     {
       try
       {
@@ -48,18 +50,31 @@ namespace JetSki
         /*if (BoatAlignNormal.instance.isServer)
         BoatAlignNormal.AddClient(ipEndpoint);*/
                 
-        BoatAlignNormal.HandleData(data, ipEndpoint);
-
-        /*if(BoatAlignNormal.instance.isServer)
-        {
-            BoatAlignNormal.BroadcastChatMessage(message);
-        }*/
+        ClientManager.HandleData(data);
       }
       catch(SocketException e)
       {
         // This happens when a client disconnects, as we fail to send to that port.
       }
-      connection.BeginReceive(OnReceive, null);
+      connection.BeginReceive(OnClientReceive, null);
+    }
+
+    void OnServerReceive(IAsyncResult ar)
+    {
+      try
+      {
+        IPEndPoint ipEndpoint = null;
+        byte[] data = connection.EndReceive(ar, ref ipEndpoint);
+
+        ServerManager.AddClient(ipEndpoint);
+                
+        ServerManager.HandleData(data);
+      }
+      catch(SocketException e)
+      {
+        // This happens when a client disconnects, as we fail to send to that port.
+      }
+      connection.BeginReceive(OnServerReceive, null);
     }
 
     internal void Send(byte[] data, IPEndPoint ipEndpoint)
