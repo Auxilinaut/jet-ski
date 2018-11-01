@@ -23,7 +23,11 @@ namespace JetSki
 
                 gameManager.serverIp = IPAddress.Parse(Globals.ipConnect);
                 gameManager.connection = new UdpConnectedClient(ip: gameManager.serverIp);
-                gameManager.clientList.Add(new IPEndPoint(gameManager.serverIp, Globals.port));
+                gameManager.clientList.Add(
+                    new GameManager.Client {
+                        ipEndPoint = new IPEndPoint(gameManager.serverIp, Globals.port)
+                    }
+                );
                 //AddClient(new IPEndPoint(serverIp, Globals.port));
                 
                 /*arenaImage = GameObject.Find("ArenaImage");
@@ -36,6 +40,7 @@ namespace JetSki
                 //clientList.Clear();
                 
                 gameManager.GetComponent<ClientManager>().enabled = true;
+                gameManager.GetComponent<MainMenuManager>().enabled = false;
             }
         }
     }

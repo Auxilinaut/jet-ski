@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
@@ -56,7 +57,7 @@ namespace JetSki
 				for (var i=0; i<gameManager.clientList.Count;i++)
 				{
 					StateMessage state_msg = new StateMessage{
-						Id = gameManager.clientList[i],
+						Id = gameManager.clientList[i].id,
 						DeliveryTime = Time.time + gameManager.latency,// + 0.1f;//+ this._pingTime[this._pingTime.Count-1];
 						TickNumber = server_tick_number,
 						Position = server_rb[i].transform.position,
@@ -64,7 +65,7 @@ namespace JetSki
 						Velocity = server_rb[i].velocity,
 						AngularVelocity = server_rb[i].angularVelocity
 					};
-					gameManager.connection.Send(state_msg.ToByteArray(),gameManager.clientList[i]);
+					gameManager.connection.Send(state_msg.ToByteArray(),gameManager.clientList[i].ipEndPoint);
 				}
 
 				/*while (this.server_input_msgs.Count > 0 && Time.time >= this.server_input_msgs.Peek().DeliveryTime)
@@ -128,7 +129,7 @@ namespace JetSki
 				Debug.Log("GameOnMessage: " + msg.ToString());
 				switch ((int)msg.GameOnCase)
 				{
-					case 1: //*****GET INPUT MESSAGE (UNIMPLEMENTED)*****
+					case 1: //*****GET INPUT MESSAGE (UNTESTED)*****
 						Debug.Log("Input from client " + msg.ClientInputMsg.Id);
 						instance.server_input_msgs[msg.ClientInputMsg.Id].Enqueue(msg.ClientInputMsg);
 					break;
@@ -146,9 +147,7 @@ namespace JetSki
 				{
 					case 1:
 						Debug.Log("Request to join from client " + msg.JoinServerMsg.Name);
-						instance.gameManager.clientList.Add(iPEndPoint);
-						//SEND TO THAT CLIENT THEIR STUFF
-						//instance.gameManager.connection.Send();
+                        AddClient(iPEndPoint, msg.JoinServerMsg.Name);
 					break;
 					case 5: //*****ACK FROM CLIENT (UNIMPLEMENTED)*****
 						Debug.Log("Ack from client " + msg.AckMsg.Id);
@@ -157,13 +156,24 @@ namespace JetSki
 			}
 		}
 
-		internal static void AddClient(IPEndPoint ipEndpoint)
+		internal static void AddClient(IPEndPoint ipEndpoint, string client_name)
         {
-            if (instance.gameManager.clientList.Contains(ipEndpoint) == false)
-            { // If it's a new client, add to the client list
-                print($"Connect to {ipEndpoint}");
-                instance.gameManager.clientList.Add(ipEndpoint);
+            bool clientExists = instance.gameManager.clientList.Any(c => c.ipEndPoint.Equals(ipEndpoint));
+
+            if (!clientExists)
+            {
+                GameManager.Client client = new GameManager.Client {
+                    id = (uint)instance.gameManager.clientList.Count + 1,
+                    ipEndPoint = ipEndpoint,
+                    name = client_name
+                };
+                Debug.Log("Adding client " + ipEndpoint.Address.ToString());
+                instance.gameManager.clientList.Add(client);
+                //SEND TO THAT CLIENT THEIR STUFF
+                instance.gameManager.connection.Send(new AcceptJoinMessage { Id = (uint)client.id, Arena = "instance", Team = 1, Position = new Vector3(0, 0, 0), Rotation = new Quaternion(0, 0, 0, 0) }.ToByteArray(), client.ipEndPoint);
             }
+
+
         }
 
         /// <summary>
@@ -171,7 +181,7 @@ namespace JetSki
         /// </summary>
         internal static void RemoveClient(IPEndPoint ipEndpoint)
         {
-            instance.gameManager.clientList.Remove(ipEndpoint);
+            instance.gameManager.clientList.RemoveAll(c => c.ipEndPoint.Equals(ipEndpoint));
         }
 	}
 }

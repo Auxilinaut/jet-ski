@@ -91,7 +91,7 @@ namespace JetSki{
 					Inputs = {inputs}
 				};
 
-				connection.Send(input_msg.ToByteArray(), GameManager.instance.clientList[0]);
+				connection.Send(input_msg.ToByteArray(), GameManager.instance.clientList[0].ipEndPoint);
 
 				++client_tick_number;
 

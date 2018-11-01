@@ -17,9 +17,9 @@ namespace JetSki{
     {
         public struct Client
         {
-            uint id;
-            IPEndPoint iPEndPoint;
-            string name;
+            public uint id;
+            public IPEndPoint ipEndPoint;
+            public string name;
         }
 
         //public Text ipServer;

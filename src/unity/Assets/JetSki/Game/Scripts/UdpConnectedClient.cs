@@ -66,9 +66,9 @@ namespace JetSki
         IPEndPoint ipEndpoint = null;
         byte[] data = connection.EndReceive(ar, ref ipEndpoint);
 
-        ServerManager.AddClient(ipEndpoint);
+        //ServerManager.AddClient(ipEndpoint);
                 
-        ServerManager.HandleData(data);
+        ServerManager.HandleData(data, ipEndpoint);
       }
       catch(SocketException e)
       {
