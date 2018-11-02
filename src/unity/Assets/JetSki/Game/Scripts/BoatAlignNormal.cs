@@ -54,11 +54,12 @@ namespace JetSki
 
         public void Awake()
         {
-            instance = this;
+            
         }
 
         void Start()
         {
+            instance = this;
             /*foreach( var ldaw in OceanRenderer.Instance._lodDataAnimWaves)
             {
                 readbackShape = readbackShape && ldaw._readbackShapeForCollision;

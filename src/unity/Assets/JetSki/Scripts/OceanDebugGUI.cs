@@ -67,10 +67,10 @@ public class OceanDebugGUI : MonoBehaviour
             }
 
             GUI.Label(new Rect(x, y, w, h), "Gerstner weight(s)"); y += h;
-            foreach (var gerstner in gerstners)
+            /*foreach (var gerstner in gerstners)
             {
                 gerstner._weight = GUI.HorizontalSlider(new Rect(x, y, w, h), gerstner._weight, 0f, 1f); y += h;
-            }
+            }*/
 
             _showSimTargets = GUI.Toggle(new Rect(x, y, w, h), _showSimTargets, "Show sim data"); y += h;
 

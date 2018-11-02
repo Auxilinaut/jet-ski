@@ -13,13 +13,17 @@ namespace JetSki
 {
 	public class ServerManager : MonoBehaviour 
 	{
+		public int player_amount = 2;
 		public GameObject server_player_prefab;
+		public GameObject ball_prefab;
 		public uint server_snapshot_rate = 0; //64hz;
 		private uint server_tick_number;
 		private uint server_tick_accumulator;
-		private Rigidbody[] server_rb;
-		private Queue<GameOffMessage>[] game_off_msgs;
-		private Queue<InputMessage>[] server_input_msgs;
+		private List<GameObject> server_players = new List<GameObject>();
+		//private List<Rigidbody> server_rbs;
+		//private Queue<GameOffMessage>[] game_off_msgs;
+		private Queue<InputMessage> server_input_msgs = new Queue<InputMessage>();
+		private Queue<GameManager.Client> client_queue = new Queue<GameManager.Client>();
 
 		public static ServerManager instance;
 		private GameManager gameManager;
@@ -28,96 +32,83 @@ namespace JetSki
 		{
 			instance = this;
 			gameManager = GameManager.instance;
+			GameManager.Client client = new GameManager.Client {
+				id = 9001,
+				name = "Ball",
+				position = new Vector3(0,100,270),
+				rotation = Quaternion.identity
+			};
+			client_queue.Enqueue(client);
+			gameManager.clientList.Add(client);
 		}
 		
 		void Update ()
 		{
+			while (client_queue.Count > 0)
+			{
+				GameManager.Client client = client_queue.Dequeue();
+				GameObject newGuy;
+				if (client.id == 9001)
+				{
+					newGuy = Instantiate(instance.ball_prefab, client.position, client.rotation);
+					newGuy.name = client.id.ToString();
+					server_players.Add(newGuy);
+				}
+				else
+				{
+					newGuy = Instantiate(instance.server_player_prefab, client.position, client.rotation);
+					newGuy.name = client.id.ToString();
+					server_players.Add(newGuy);
+				}
+			}
 			if (Globals.gameOn)
 			{
 				float fdt = Time.fixedDeltaTime;
 				uint server_tick_number = this.server_tick_number;
 				uint server_tick_accumulator = this.server_tick_accumulator;
 
-				for (var i=0; i<gameManager.clientList.Count;i++)
+				while (this.server_input_msgs.Count > 0) //was if instead of while so idk if it will work tbh
 				{
-					if (this.server_input_msgs[i].Count > 0)
-					{
-						InputMessage input_msg = this.server_input_msgs[i].Dequeue();
-
-						BoatAlignNormal.instance.PrePhysicsStep(server_rb[i], input_msg.Inputs[0], fdt, Time.deltaTime);
-					}
-					else
-					{
-						Debug.Log("No input messages.");
-					}
+					InputMessage input_msg = this.server_input_msgs.Dequeue();
+					GameObject go = server_players.First(p => p.name == input_msg.Id.ToString());
+					//Debug.Log(BoatAlignNormal.instance);
+					//Debug.Log(go.GetComponent<Rigidbody>());
+					if (input_msg.Inputs.Count > 0)
+					BoatAlignNormal.instance.PrePhysicsStep(go.GetComponent<Rigidbody>(), input_msg.Inputs[0], fdt, Time.deltaTime);
 				}
+
+				BoatAlignNormal.instance.PrePhysicsStep(server_players[0].GetComponent<Rigidbody>(), new Inputs{}, fdt, Time.deltaTime);
 
 				Physics.Simulate(fdt);
 
 				for (var i=0; i<gameManager.clientList.Count;i++)
 				{
-					StateMessage state_msg = new StateMessage{
+					GameObject pkmngo = server_players.First(p => p.name == gameManager.clientList[i].id.ToString());
+					Rigidbody rb = pkmngo.GetComponent<Rigidbody>();
+
+					GameOnMessage gameOnMessage = new GameOnMessage();
+					gameOnMessage.ServerStateMsg = new StateMessage{
 						Id = gameManager.clientList[i].id,
 						DeliveryTime = Time.time + gameManager.latency,// + 0.1f;//+ this._pingTime[this._pingTime.Count-1];
 						TickNumber = server_tick_number,
-						Position = server_rb[i].transform.position,
-						Rotation = server_rb[i].transform.rotation,
-						Velocity = server_rb[i].velocity,
-						AngularVelocity = server_rb[i].angularVelocity
+						Position = rb.transform.position,
+						Rotation = rb.transform.rotation,
+						Velocity = rb.velocity,
+						AngularVelocity = rb.angularVelocity
 					};
-					gameManager.connection.Send(state_msg.ToByteArray(),gameManager.clientList[i].ipEndPoint);
+
+					BroadcastGameOnMessage(gameOnMessage);
 				}
-
-				/*while (this.server_input_msgs.Count > 0 && Time.time >= this.server_input_msgs.Peek().DeliveryTime)
-				{
-					InputMessage input_msg = this.server_input_msgs.Dequeue();
-
-					// message contains an array of inputs, calculate what tick the final one is
-					uint max_tick = input_msg.StartTickNumber + (uint)input_msg.Inputs.Count - 1;
-
-					// if that tick is greater than or equal to the current tick we're on, then it
-					// has inputs which are new
-					if (max_tick >= server_tick_number)
-					{
-						// there may be some inputs in the array that we've already had,
-						// so figure out where to start
-						uint start_i = server_tick_number > input_msg.StartTickNumber ? (server_tick_number - input_msg.StartTickNumber) : 0;
-
-						// run through all relevant inputs, and step player forward
-						for (int i = (int)start_i; i < input_msg.Inputs.Count; ++i)
-						{
-							this.PrePhysicsStep(_rb, input_msg.Inputs[i], fdt, Time.deltaTime);
-							//Physics.SyncTransforms();
-							Physics.Simulate(fdt);
-
-							++server_tick_accumulator;
-							if (server_tick_accumulator >= this.server_snapshot_rate)
-							{
-								server_tick_accumulator = 0;
-
-								StateMessage state_msg = new StateMessage{
-									DeliveryTime = Time.time + this.latency,// + 0.1f;//+ this._pingTime[this._pingTime.Count-1];
-									TickNumber = server_tick_number,
-									Position = _rb.transform.position,
-									Rotation = _rb.transform.rotation,
-									Velocity = _rb.velocity,
-									AngularVelocity = _rb.angularVelocity
-								};
-
-								//***SEND THE STUFF (UNTESTED)***
-								connection.Send(state_msg.ToByteArray(), clientList[0]);
-							}
-						}
-
-						//this.server_display_player.rigidbody.transform.position = server_rigidbody.position;
-						//this.server_display_player.rigidbody.transform.rotation = server_rigidbody.rotation;
-
-						server_tick_number = max_tick + 1;
-					}
-				}*/
 
 				this.server_tick_number = server_tick_number;
 				this.server_tick_accumulator = server_tick_accumulator;
+			}
+			else if (gameManager.clientList.Count > player_amount)
+			{
+				Globals.gameOn = true;
+				GameOffMessage gameOffMessage = new GameOffMessage();
+				gameOffMessage.StartGameMsg = new StartGameMessage();
+				BroadcastGameOffMessage(gameOffMessage);
 			}
 		}
 
@@ -126,16 +117,17 @@ namespace JetSki
 			if (Globals.gameOn)
 			{
 				GameOnMessage msg = GameOnMessage.Parser.ParseFrom(data);
-				Debug.Log("GameOnMessage: " + msg.ToString());
+				//Debug.Log("GameOnMessage: " + msg.ToString());
 				switch ((int)msg.GameOnCase)
 				{
 					case 1: //*****GET INPUT MESSAGE (UNTESTED)*****
-						Debug.Log("Input from client " + msg.ClientInputMsg.Id);
-						instance.server_input_msgs[msg.ClientInputMsg.Id].Enqueue(msg.ClientInputMsg);
+						//Debug.Log("Input from client " + msg.ClientInputMsg.Id);
+						instance.server_input_msgs.Enqueue(msg.ClientInputMsg);
+						//instance.server_input_msgs[instance.gameManager.clientList.FindIndex(c => c.id == msg.ClientInputMsg.Id)].Enqueue(msg.ClientInputMsg);
 					break;
 
 					case 5: //*****CLIENT ACK RECEIVED *****
-						Debug.Log("Ack from client " + msg.AckMsg.Id);
+						//Debug.Log("Ack from client " + msg.AckMsg.Id);
 					break;
 				}
 			}
@@ -146,11 +138,11 @@ namespace JetSki
 				switch ((int)msg.GameOffCase)
 				{
 					case 1:
-						Debug.Log("Request to join from client " + msg.JoinServerMsg.Name);
+						//Debug.Log("Request to join from client " + msg.JoinServerMsg.Name);
                         AddClient(iPEndPoint, msg.JoinServerMsg.Name);
 					break;
 					case 5: //*****ACK FROM CLIENT (UNIMPLEMENTED)*****
-						Debug.Log("Ack from client " + msg.AckMsg.Id);
+						//Debug.Log("Ack from client " + msg.AckMsg.Id);
 					break;
 				}
 			}
@@ -158,22 +150,84 @@ namespace JetSki
 
 		internal static void AddClient(IPEndPoint ipEndpoint, string client_name)
         {
-            bool clientExists = instance.gameManager.clientList.Any(c => c.ipEndPoint.Equals(ipEndpoint));
+			//Debug.Log("Attempting to add client");
+            //bool clientExists = instance.gameManager.clientList.Any(c => c.ipEndPoint.Equals(ipEndpoint));
 
-            if (!clientExists)
-            {
+            //if (!clientExists)
+            //{
+				//var i = instance.gameManager.clientList.Count; //id for new client
+				//float angle = i * Mathf.PI * 2 / instance.gameManager.clientList.Count;
+   				Vector3 pos = new Vector3(0, 50, 270);// = new Vector3(Mathf.Cos(angle), 50, Mathf.Sin(angle)); //placement of new client
+
                 GameManager.Client client = new GameManager.Client {
-                    id = (uint)instance.gameManager.clientList.Count + 1,
+                    id = (uint)instance.gameManager.clientList.Count,
                     ipEndPoint = ipEndpoint,
-                    name = client_name
+                    name = client_name,
+					position = pos,
+					rotation = Quaternion.identity
                 };
-                Debug.Log("Adding client " + ipEndpoint.Address.ToString());
+
+				Google.Protobuf.Collections.RepeatedField<NewPlayerMessage> newPlayerMessages = new Google.Protobuf.Collections.RepeatedField<NewPlayerMessage>();
+
+				if (instance.gameManager.clientList.Count > 0) //more players already connected (message includes ball)
+				{
+					//Debug.Log("more players already connected");
+					GameOffMessage gameoffmsg = new GameOffMessage();
+					gameoffmsg.NewPlayerMsg = new NewPlayerMessage {
+						Id = client.id,
+						Name = client.name,
+						Position = client.position,
+						Rotation = client.rotation
+					};
+
+					for (int j = 0; j<instance.gameManager.clientList.Count; j++)
+					{
+						newPlayerMessages.Add(
+							new NewPlayerMessage {
+								Id = instance.gameManager.clientList[j].id,
+								Name = instance.gameManager.clientList[j].name,
+								Team = instance.gameManager.clientList[j].team,
+								Position = instance.gameManager.clientList[j].position,
+								Rotation = instance.gameManager.clientList[j].rotation
+							}
+						);
+
+						//tell existing player about new player
+						if (j > 0) //don't send it to the ball
+						instance.gameManager.connection.Send(gameoffmsg.ToByteArray(), instance.gameManager.clientList[j].ipEndPoint);
+					}
+				}
+				else //only tell new client about the ball
+				{
+					//Debug.Log("only the ball: " + instance.gameManager.clientList[0].id);
+					newPlayerMessages.Add(
+						new NewPlayerMessage {
+							Id = instance.gameManager.clientList[0].id,
+							Name = instance.gameManager.clientList[0].name,
+							Position = instance.gameManager.clientList[0].position,
+							Rotation = instance.gameManager.clientList[0].rotation
+						}
+					);
+				}
+
+                //Debug.Log("Adding client " + ipEndpoint.Address.ToString());
                 instance.gameManager.clientList.Add(client);
-                //SEND TO THAT CLIENT THEIR STUFF
-                instance.gameManager.connection.Send(new AcceptJoinMessage { Id = (uint)client.id, Arena = "instance", Team = 1, Position = new Vector3(0, 0, 0), Rotation = new Quaternion(0, 0, 0, 0) }.ToByteArray(), client.ipEndPoint);
-            }
+				instance.client_queue.Enqueue(client);
+				//instance.OffMainThreadInstantiate(client);
+				//instance.server_rbs.Add(newGuy.GetComponent<Rigidbody>());
 
-
+                //tell new client their id and team, which map to load, and where to spawn
+				GameOffMessage gameOffMessage = new GameOffMessage();
+				gameOffMessage.AcceptJoinMsg = new AcceptJoinMessage {
+					Id = client.id, 
+					Arena = "instance", 
+					Team = 1, 
+					Position = client.position, 
+					Rotation = client.rotation
+				};
+				gameOffMessage.AcceptJoinMsg.NewPlayerMsg.AddRange(newPlayerMessages);
+				instance.gameManager.connection.Send(gameOffMessage.ToByteArray(), client.ipEndPoint);
+			//}
         }
 
         /// <summary>
@@ -183,5 +237,27 @@ namespace JetSki
         {
             instance.gameManager.clientList.RemoveAll(c => c.ipEndPoint.Equals(ipEndpoint));
         }
+
+		internal static void BroadcastGameOffMessage(GameOffMessage gameOffMessage)
+		{
+			for (var i=1; i<instance.gameManager.clientList.Count; i++)
+			{
+				instance.gameManager.connection.Send(gameOffMessage.ToByteArray(), instance.gameManager.clientList[i].ipEndPoint);
+			}
+		}
+
+		internal static void BroadcastGameOnMessage(GameOnMessage gameOnMessage)
+		{
+			for (var i=1; i<instance.gameManager.clientList.Count; i++)
+			{
+				instance.gameManager.connection.Send(gameOnMessage.ToByteArray(), instance.gameManager.clientList[i].ipEndPoint);
+			}
+		}
+
+		IEnumerator InstantiatePlayer()
+		{
+			yield return new WaitForSeconds(0.5f);
+			Instantiate(server_player_prefab);
+		}
 	}
 }

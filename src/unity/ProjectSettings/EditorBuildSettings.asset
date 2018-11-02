@@ -5,10 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/JetSki/Instance/Scenes/instance.unity
+    path: Assets/JetSki/Game/Scenes/boot.unity
+    guid: 34ccfbd4e0e83f74f9eeed2a4972d148
+  - enabled: 1
+    path: Assets/JetSki/Game/Scenes/mainmenu.unity
+    guid: 1366ba4fbd90ad440b74440287711a2f
+  - enabled: 1
+    path: Assets/JetSki/Game/Scenes/instance.unity
     guid: efabf53d84a086540ab55e6504a9528e
   m_configObjects: {}

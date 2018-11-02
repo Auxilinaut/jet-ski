@@ -20,10 +20,11 @@ namespace JetSki{
             public uint id;
             public IPEndPoint ipEndPoint;
             public string name;
+            public uint team;
+            public Vector3 position;
+            public Quaternion rotation;
         }
 
-        //public Text ipServer;
-        public Button startGameButton;
         public float gameStartDelay = 2f;                      //Time to wait before starting arena, in seconds.
         public bool isClient;
         public static GameManager instance = null;              //Static instance of GameManager which allows it to be accessed by any other script.
@@ -53,7 +54,7 @@ namespace JetSki{
         /// </summary>
         public List<Client> clientList = new List<Client>();
 
-        public static byte[] theData;
+        //public static byte[] theData;
 
         public UdpConnectedClient connection;
         #endregion
@@ -77,10 +78,10 @@ namespace JetSki{
             //Sets this to not be destroyed when reloading scene
             DontDestroyOnLoad(gameObject);
 
-            mainMenuManager = GetComponent<MainMenuManager>();
-            clientManager = GetComponent<ClientManager>();
-            serverManager = GetComponent<ServerManager>();
-
+            mainMenuManager = gameObject.GetComponent<MainMenuManager>();
+            clientManager = gameObject.GetComponent<ClientManager>();
+            serverManager = gameObject.GetComponent<ServerManager>();
+            
             if (isClient)
             {
                 this.ClientInitGame();
@@ -104,16 +105,35 @@ namespace JetSki{
         void ServerInitGame()
         {
             serverManager.enabled = true;
+            SceneManager.LoadScene("instance");
         }
-        
-        void Update()
+
+        public void StartGame()
         {
+            mainMenuManager.enabled = false;
+            clientManager.enabled = true;
+            Debug.Log("Loading arena");
             
+            /*Scene gameScene = SceneManager.GetSceneByName("instance");
+            SceneManager.SetActiveScene(gameScene);
+            SceneManager.UnloadScene("mainmenu");*/
+
+            SceneManager.LoadScene("instance");
+            //StartCoroutine(LoadNewScene());
+        }
+
+        IEnumerator LoadNewScene()
+        {
+            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("instance");
+            while (!asyncLoad.isDone)
+            {
+                yield return null;
+            }
         }
 
         private void OnApplicationQuit()
         {
-            connection.Close();
+            instance.connection.Close();
         }
     }
 }

@@ -50,7 +50,7 @@ namespace JetSki
         /*if (BoatAlignNormal.instance.isServer)
         BoatAlignNormal.AddClient(ipEndpoint);*/
                 
-        ClientManager.HandleData(data);
+        ClientManager.HandleData(data, ipEndpoint);
       }
       catch(SocketException e)
       {

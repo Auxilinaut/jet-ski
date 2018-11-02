@@ -12,6 +12,8 @@ namespace JetSki
         public static string arena = "instance"; //Current arena name
         public static bool inMainMenu; //we even in the game yet?
         public static bool doingSetup; //placing players down?
-        public static bool gameOn; //
+        public static bool gameOn; //game happening?
+        public static uint myId;
+        public static string myName;
     }
 }

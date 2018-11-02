@@ -56,11 +56,11 @@ namespace JetSki
             Crest.LodDataDynamicWaves.CountWaveSims(minLod, out simsPresent, out simsActive);
 
             // counting non-existent sims is expensive - stop updating if none found
-            if (simsPresent == 0)
+            /*if (simsPresent == 0)
             {
                 enabled = false;
                 return;
-            }
+            }*/
 
             // no sims running - abort. don't bother switching off renderer - camera wont be active
             if (simsActive == 0)
