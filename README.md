@@ -5,6 +5,6 @@
 ## How to run (not dev [server])
 1. Open up ServerBuild/Jet Ski.exe
 ## How to run (not dev [client])
-1. Open up ClientBuild/Jet Ski.exe
+1. Open up ClientBuild/Jet Ski.exe (current build requires 2 clients)
 ## How to play
 Keyboard: WASD or arrows to move. Left click to rocket jet boost. Right click to water jet boost.
