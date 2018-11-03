@@ -8,3 +8,11 @@
 1. Open up ClientBuild/Jet Ski.exe (current build requires 2 clients)
 ## How to play
 Keyboard: WASD or arrows to move. Left click to rocket jet boost. Right click to water jet boost.
+## Deliverables
+### Midterm (Complete as of 11/2/2018): 
+* Instanced multiplayer
+### Midterm (Incomplete):
+* Matchmaking
+* Physics changes per arena
+* 5 obstacles/manipulables
+* Database integration
