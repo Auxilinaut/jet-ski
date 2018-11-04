@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -23,6 +24,7 @@ namespace JetSki{
 		// client specific
 		public GameObject player_prefab;
 		public GameObject ball_prefab;
+		public GameObject fuel_prefab;
 
 		private List<GameObject> players = new List<GameObject>();
 
@@ -73,6 +75,12 @@ namespace JetSki{
 				if (client.id == 9001)
 				{
 					newGuy = Instantiate(ball_prefab, client.position, client.rotation);
+					newGuy.name = client.id.ToString();
+					players.Add(newGuy);
+				}
+				else if (client.id > 9001 && client.id <= 9001 + Globals.barrelCount) //fuel
+				{
+					newGuy = Instantiate(fuel_prefab, client.position, client.rotation);
 					newGuy.name = client.id.ToString();
 					players.Add(newGuy);
 				}
@@ -188,13 +196,17 @@ namespace JetSki{
 				switch ((int)msg.GameOffCase)
 				{
 					case 2: //*****ACCEPTED TO JOIN SERVER (UNTESTED)*****
-						Debug.Log("Joining server with " + msg.AcceptJoinMsg.NewPlayerMsg.Count + " other.");
 						//Debug.Log("Team: " + msg.AcceptJoinMsg.Team);
 						//Debug.Log("Position: " + msg.AcceptJoinMsg.Position);
 						//Debug.Log("Rotation: " + msg.AcceptJoinMsg.Rotation);
 
 						Globals.myId = msg.AcceptJoinMsg.Id;
+						Globals.arena = msg.AcceptJoinMsg.Arena;
 
+						Debug.Log("Joining server in arena " + Globals.arena + " with " + msg.AcceptJoinMsg.NewPlayerMsg.Count + " other.");
+
+						SceneManager.LoadScene(Globals.arena);
+						
 						//if (msg.AcceptJoinMsg.NewPlayerMsg.Count > 0)
 						instance.JoinServer(msg.AcceptJoinMsg.Id, msg.AcceptJoinMsg.Team, msg.AcceptJoinMsg.Position, msg.AcceptJoinMsg.Rotation, msg.AcceptJoinMsg.NewPlayerMsg);
 						//else

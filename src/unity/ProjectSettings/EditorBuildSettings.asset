@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/JetSki/Game/Scenes/instance.unity
     guid: efabf53d84a086540ab55e6504a9528e
+  - enabled: 1
+    path: Assets/JetSki/Game/Scenes/hydrobase.unity
+    guid: 7b23735e9a30cbf4d8ce107b3c41f7d1
   m_configObjects: {}

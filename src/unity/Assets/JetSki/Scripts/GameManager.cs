@@ -104,32 +104,37 @@ namespace JetSki{
 
         void ServerInitGame()
         {
+            //random map between 2 maps for now
+            if (Random.Range(0,2) == 1)
+                Globals.arena = "instance";
+            else
+                Globals.arena = "hydrobase";
+
             serverManager.enabled = true;
-            SceneManager.LoadScene("instance");
+            SceneManager.LoadScene(Globals.arena);
         }
 
         public void StartGame()
         {
             mainMenuManager.enabled = false;
             clientManager.enabled = true;
-            Debug.Log("Loading arena");
             
             /*Scene gameScene = SceneManager.GetSceneByName("instance");
             SceneManager.SetActiveScene(gameScene);
             SceneManager.UnloadScene("mainmenu");*/
 
-            SceneManager.LoadScene("instance");
+            //
             //StartCoroutine(LoadNewScene());
         }
 
-        IEnumerator LoadNewScene()
+        /*IEnumerator LoadNewScene()
         {
             AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("instance");
             while (!asyncLoad.isDone)
             {
                 yield return null;
             }
-        }
+        }*/
 
         private void OnApplicationQuit()
         {

@@ -16,6 +16,7 @@ namespace JetSki
 		public int player_amount = 2;
 		public GameObject server_player_prefab;
 		public GameObject ball_prefab;
+		public GameObject server_fuel_prefab;
 		public uint server_snapshot_rate = 0; //64hz;
 		private uint server_tick_number;
 		private uint server_tick_accumulator;
@@ -28,18 +29,39 @@ namespace JetSki
 		public static ServerManager instance;
 		private GameManager gameManager;
 
+		private Vector3 placement = Vector3.zero;
+
 		void Start ()
 		{
 			instance = this;
 			gameManager = GameManager.instance;
+			if (Globals.arena == "instance")
+				placement = new Vector3(0,100,270);
+			else if (Globals.arena == "hydrobase")
+				placement.y = 100;
+
 			GameManager.Client client = new GameManager.Client {
 				id = 9001,
 				name = "Ball",
-				position = new Vector3(0,100,270),
+				position = placement,
 				rotation = Quaternion.identity
 			};
 			client_queue.Enqueue(client);
 			gameManager.clientList.Add(client);
+
+			for (var i=0; i<Globals.barrelCount; i++)
+			{
+				float angle = i * Mathf.PI / 3;
+   				Vector3 pos = new Vector3(placement.x + Mathf.Cos(angle) * 100, 80, placement.z + (Mathf.Sin(angle) * 100)); //placement of new client
+				client = new GameManager.Client {
+					id = (uint)(9002 + i),
+					name = "Barrel " + i,
+					position = pos,
+					rotation = Quaternion.identity
+				};
+				client_queue.Enqueue(client);
+				gameManager.clientList.Add(client);
+			}
 		}
 		
 		void Update ()
@@ -48,9 +70,15 @@ namespace JetSki
 			{
 				GameManager.Client client = client_queue.Dequeue();
 				GameObject newGuy;
-				if (client.id == 9001)
+				if (client.id == 9001) //ball
 				{
 					newGuy = Instantiate(instance.ball_prefab, client.position, client.rotation);
+					newGuy.name = client.id.ToString();
+					server_players.Add(newGuy);
+				}
+				else if (client.id > 9001 && client.id <= 9001 + Globals.barrelCount) //fuel
+				{
+					newGuy = Instantiate(instance.server_fuel_prefab, client.position, client.rotation);
 					newGuy.name = client.id.ToString();
 					server_players.Add(newGuy);
 				}
@@ -74,10 +102,16 @@ namespace JetSki
 					//Debug.Log(BoatAlignNormal.instance);
 					//Debug.Log(go.GetComponent<Rigidbody>());
 					if (input_msg.Inputs.Count > 0)
-					BoatAlignNormal.instance.PrePhysicsStep(go.GetComponent<Rigidbody>(), input_msg.Inputs[0], fdt, Time.deltaTime);
+						BoatAlignNormal.instance.PrePhysicsStep(go.GetComponent<Rigidbody>(), input_msg.Inputs[0], fdt, Time.deltaTime);
+					else
+						BoatAlignNormal.instance.PrePhysicsStep(go.GetComponent<Rigidbody>(), new Inputs{}, fdt, Time.deltaTime);
 				}
 
 				BoatAlignNormal.instance.PrePhysicsStep(server_players[0].GetComponent<Rigidbody>(), new Inputs{}, fdt, Time.deltaTime);
+				for (var i=0; i<Globals.barrelCount; i++)
+				{
+					BoatAlignNormal.instance.PrePhysicsStep(server_players[i+1].GetComponent<Rigidbody>(), new Inputs{}, fdt, Time.deltaTime);
+				}
 
 				Physics.Simulate(fdt);
 
@@ -103,7 +137,7 @@ namespace JetSki
 				this.server_tick_number = server_tick_number;
 				this.server_tick_accumulator = server_tick_accumulator;
 			}
-			else if (gameManager.clientList.Count > player_amount)
+			else if (gameManager.clientList.Count == 1 + Globals.barrelCount + player_amount)
 			{
 				Globals.gameOn = true;
 				GameOffMessage gameOffMessage = new GameOffMessage();
@@ -157,15 +191,19 @@ namespace JetSki
             //{
 				//var i = instance.gameManager.clientList.Count; //id for new client
 				//float angle = i * Mathf.PI * 2 / instance.gameManager.clientList.Count;
-   				Vector3 pos = new Vector3(0, 50, 270);// = new Vector3(Mathf.Cos(angle), 50, Mathf.Sin(angle)); //placement of new client
+   				//Vector3 pos = new Vector3(0, 50, 270);// = new Vector3(Mathf.Cos(angle), 50, Mathf.Sin(angle)); //placement of new client
 
                 GameManager.Client client = new GameManager.Client {
                     id = (uint)instance.gameManager.clientList.Count,
                     ipEndPoint = ipEndpoint,
                     name = client_name,
-					position = pos,
+					position = instance.placement,
 					rotation = Quaternion.identity
                 };
+
+				//spawn clients under ball for now
+				if (client.id != 9001)
+					client.position.y -= 50;
 
 				Google.Protobuf.Collections.RepeatedField<NewPlayerMessage> newPlayerMessages = new Google.Protobuf.Collections.RepeatedField<NewPlayerMessage>();
 
@@ -193,11 +231,11 @@ namespace JetSki
 						);
 
 						//tell existing player about new player
-						if (j > 0) //don't send it to the ball
+						if (j > Globals.barrelCount) //don't send it to the ball or fuel packs
 						instance.gameManager.connection.Send(gameoffmsg.ToByteArray(), instance.gameManager.clientList[j].ipEndPoint);
 					}
 				}
-				else //only tell new client about the ball
+				else //only tell new client about the ball and fuel packs
 				{
 					//Debug.Log("only the ball: " + instance.gameManager.clientList[0].id);
 					newPlayerMessages.Add(
@@ -208,6 +246,18 @@ namespace JetSki
 							Rotation = instance.gameManager.clientList[0].rotation
 						}
 					);
+
+					for (var k=1; k<=Globals.barrelCount; k++)
+					{
+						newPlayerMessages.Add(
+							new NewPlayerMessage {
+								Id = instance.gameManager.clientList[k].id,
+								Name = instance.gameManager.clientList[k].name,
+								Position = instance.gameManager.clientList[k].position,
+								Rotation = instance.gameManager.clientList[k].rotation
+							}
+						);
+					}
 				}
 
                 //Debug.Log("Adding client " + ipEndpoint.Address.ToString());
@@ -220,7 +270,7 @@ namespace JetSki
 				GameOffMessage gameOffMessage = new GameOffMessage();
 				gameOffMessage.AcceptJoinMsg = new AcceptJoinMessage {
 					Id = client.id, 
-					Arena = "instance", 
+					Arena = Globals.arena, 
 					Team = 1, 
 					Position = client.position, 
 					Rotation = client.rotation
@@ -240,7 +290,7 @@ namespace JetSki
 
 		internal static void BroadcastGameOffMessage(GameOffMessage gameOffMessage)
 		{
-			for (var i=1; i<instance.gameManager.clientList.Count; i++)
+			for (var i=1 + Globals.barrelCount; i<instance.gameManager.clientList.Count; i++)
 			{
 				instance.gameManager.connection.Send(gameOffMessage.ToByteArray(), instance.gameManager.clientList[i].ipEndPoint);
 			}
@@ -248,7 +298,7 @@ namespace JetSki
 
 		internal static void BroadcastGameOnMessage(GameOnMessage gameOnMessage)
 		{
-			for (var i=1; i<instance.gameManager.clientList.Count; i++)
+			for (var i=1 + Globals.barrelCount; i<instance.gameManager.clientList.Count; i++)
 			{
 				instance.gameManager.connection.Send(gameOnMessage.ToByteArray(), instance.gameManager.clientList[i].ipEndPoint);
 			}

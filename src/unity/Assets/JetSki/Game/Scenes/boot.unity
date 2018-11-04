@@ -148,6 +148,8 @@ MonoBehaviour:
     type: 2}
   ball_prefab: {fileID: 1774162488693126, guid: 47d22313fc1756641947921554cde1ed,
     type: 2}
+  server_fuel_prefab: {fileID: 1323869950068192, guid: 70d0f01025dce2f4b99dfc832541e6ad,
+    type: 2}
   server_snapshot_rate: 0
 --- !u!114 &944916006
 MonoBehaviour:
@@ -163,6 +165,8 @@ MonoBehaviour:
   player_prefab: {fileID: 1034270577160502, guid: f9866c7d3b347e64e8bb35f6891db5fc,
     type: 2}
   ball_prefab: {fileID: 1996078487801680, guid: 1e004c167745b814da8527aacfdac78a,
+    type: 2}
+  fuel_prefab: {fileID: 1895972116010938, guid: f04ee18c7b5b9d74cbe32028e672bd70,
     type: 2}
   client_enable_corrections: 1
   client_correction_smoothing: 0
