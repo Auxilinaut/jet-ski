@@ -9,10 +9,12 @@
 ## How to play
 Keyboard: WASD or arrows to move. Left click to rocket jet boost. Right click to water jet boost.
 ## Deliverables
+Please see the [game doc](https://docs.google.com/document/d/1gHzj5BcQ0dXD7nnSAoUhtMdIgQR7cdEE6s1d8R8hS8Q/edit?usp=sharing) for more details.
 ### Midterm (Complete as of 11/2/2018): 
 * Instanced multiplayer
-### Midterm (Incomplete):
-* Matchmaking
+### Midterm (Complete as of 11/3/2018): 
 * Physics changes per arena
 * 5 obstacles/manipulables
+### Midterm (Incomplete): 
+* Matchmaking
 * Database integration
