@@ -46,9 +46,6 @@ namespace JetSki
       {
         IPEndPoint ipEndpoint = null;
         byte[] data = connection.EndReceive(ar, ref ipEndpoint);
-
-        /*if (BoatAlignNormal.instance.isServer)
-        BoatAlignNormal.AddClient(ipEndpoint);*/
                 
         ClientManager.HandleData(data, ipEndpoint);
       }
@@ -65,8 +62,6 @@ namespace JetSki
       {
         IPEndPoint ipEndpoint = null;
         byte[] data = connection.EndReceive(ar, ref ipEndpoint);
-
-        //ServerManager.AddClient(ipEndpoint);
                 
         ServerManager.HandleData(data, ipEndpoint);
       }
