@@ -9,7 +9,6 @@
 ## How to play
 Keyboard: WASD or arrows to move. Left click to rocket jet boost. Right click to water jet boost.
 ## Deliverables
-Please see the [game doc](https://docs.google.com/document/d/1gHzj5BcQ0dXD7nnSAoUhtMdIgQR7cdEE6s1d8R8hS8Q/edit?usp=sharing) for more details.
 ### Midterm (Complete as of 11/2/2018): 
 * Instanced multiplayer
 ### Midterm (Complete as of 11/3/2018): 
@@ -18,3 +17,11 @@ Please see the [game doc](https://docs.google.com/document/d/1gHzj5BcQ0dXD7nnSAo
 ### Midterm (Incomplete): 
 * Matchmaking
 * Database integration
+* (Stretch goal) Jet ski tuning
+### Final:
+* 5 shader effects
+* Instant replay
+* Unlockable jet ski parts
+* Skin store UI
+* Save/load system
+* (Stretch goal) Parallelized prediction using a compute shader
