@@ -150,6 +150,7 @@ MonoBehaviour:
     type: 2}
   server_fuel_prefab: {fileID: 1323869950068192, guid: 70d0f01025dce2f4b99dfc832541e6ad,
     type: 2}
+  dome: {fileID: 0}
   server_snapshot_rate: 0
 --- !u!114 &944916006
 MonoBehaviour:

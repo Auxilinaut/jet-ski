@@ -53,7 +53,7 @@ Shader "Snow Particle" {
 		o.projPos = ComputeScreenPos(o.vertex);
 		COMPUTE_EYEDEPTH(o.projPos.z);
 		#endif
-		 UNITY_TRANSFER_FOG(o,o.pos);
+		 //UNITY_TRANSFER_FOG(o,o.pos);
 		 return o;
 		 }
 

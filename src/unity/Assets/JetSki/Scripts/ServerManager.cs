@@ -35,10 +35,11 @@ namespace JetSki
 		{
 			instance = this;
 			gameManager = GameManager.instance;
-			if (Globals.arena == "instance")
+
+			/*if (Globals.arena == "instance")
 				placement = new Vector3(0,100,270);
 			else if (Globals.arena == "hydrobase")
-				placement.y = 100;
+				*/placement.y = 100;
 
 			GameManager.Client client = new GameManager.Client {
 				id = 9001,
@@ -105,6 +106,12 @@ namespace JetSki
 						BoatAlignNormal.instance.PrePhysicsStep(go.GetComponent<Rigidbody>(), input_msg.Inputs[0], fdt, Time.deltaTime);
 					else
 						BoatAlignNormal.instance.PrePhysicsStep(go.GetComponent<Rigidbody>(), new Inputs{}, fdt, Time.deltaTime);
+
+					Vector3 zeroVec3 = new Vector3(0,0,0);
+					if(Vector3.Distance(zeroVec3, go.transform.position) > 750) //keep within dome
+					{
+						go.GetComponent<Rigidbody>().AddForce((zeroVec3 - transform.position).normalized * 100 * Time.deltaTime);
+					}
 				}
 
 				BoatAlignNormal.instance.PrePhysicsStep(server_players[0].GetComponent<Rigidbody>(), new Inputs{}, fdt, Time.deltaTime);
@@ -200,6 +207,10 @@ namespace JetSki
 					position = instance.placement,
 					rotation = Quaternion.identity
                 };
+
+				float angle = client.id * Mathf.PI / 3;
+   				Vector3 pos = new Vector3(instance.placement.x + Mathf.Cos(angle) * 100, 80, instance.placement.z + (Mathf.Sin(angle) * 100));
+				client.position = pos;
 
 				//spawn clients under ball for now
 				if (client.id != 9001)
