@@ -83,6 +83,8 @@ message StateMessage {
     MyQuaternion rotation = 5;
     MyVector3 velocity = 6;
     MyVector3 angular_velocity = 7;
+    bool water_boosting = 8;
+    bool rocket_boosting = 9;
 }
 
 //server: time out, I'll let you know when to start again, ok?

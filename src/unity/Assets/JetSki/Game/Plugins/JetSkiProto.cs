@@ -48,21 +48,22 @@ namespace JetSkiProto {
             "aWNrX251bWJlchgDIAEoDRIsCgZpbnB1dHMYBCADKAsyHC5qZXRfc2tpLklu",
             "cHV0TWVzc2FnZS5JbnB1dHMaXAoGSW5wdXRzEg8KB2ZvcndhcmQYASABKAIS",
             "EAoIc2lkZXdheXMYAiABKAISFgoOd2F0ZXJfYm9vc3RpbmcYAyABKAgSFwoP",
-            "cm9ja2V0X2Jvb3N0aW5nGAQgASgIIukBCgxTdGF0ZU1lc3NhZ2USCgoCaWQY",
+            "cm9ja2V0X2Jvb3N0aW5nGAQgASgIIpoCCgxTdGF0ZU1lc3NhZ2USCgoCaWQY",
             "ASABKA0SFQoNZGVsaXZlcnlfdGltZRgCIAEoAhITCgt0aWNrX251bWJlchgD",
             "IAEoDRIkCghwb3NpdGlvbhgEIAEoCzISLmpldF9za2kuTXlWZWN0b3IzEicK",
             "CHJvdGF0aW9uGAUgASgLMhUuamV0X3NraS5NeVF1YXRlcm5pb24SJAoIdmVs",
             "b2NpdHkYBiABKAsyEi5qZXRfc2tpLk15VmVjdG9yMxIsChBhbmd1bGFyX3Zl",
-            "bG9jaXR5GAcgASgLMhIuamV0X3NraS5NeVZlY3RvcjMiRQoMU2NvcmVNZXNz",
-            "YWdlEgoKAmlkGAEgASgNEg0KBXNjb3JlGAIgASgNEgwKBG5hbWUYAyABKAkS",
-            "DAoEdGVhbRgEIAEoDSIfCg9TdG9wR2FtZU1lc3NhZ2USDAoEdGVhbRgBIAEo",
-            "DSKHAgoNR2FtZU9uTWVzc2FnZRIxChBjbGllbnRfaW5wdXRfbXNnGAEgASgL",
-            "MhUuamV0X3NraS5JbnB1dE1lc3NhZ2VIABIxChBzZXJ2ZXJfc3RhdGVfbXNn",
-            "GAIgASgLMhUuamV0X3NraS5TdGF0ZU1lc3NhZ2VIABIqCglzY29yZV9tc2cY",
-            "AyABKAsyFS5qZXRfc2tpLlNjb3JlTWVzc2FnZUgAEjEKDXN0b3BfZ2FtZV9t",
-            "c2cYBCABKAsyGC5qZXRfc2tpLlN0b3BHYW1lTWVzc2FnZUgAEiYKB2Fja19t",
-            "c2cYBSABKAsyEy5qZXRfc2tpLkFja01lc3NhZ2VIAEIJCgdnYW1lX29uQg6q",
-            "AgtKZXRTa2lQcm90b2IGcHJvdG8z"));
+            "bG9jaXR5GAcgASgLMhIuamV0X3NraS5NeVZlY3RvcjMSFgoOd2F0ZXJfYm9v",
+            "c3RpbmcYCCABKAgSFwoPcm9ja2V0X2Jvb3N0aW5nGAkgASgIIkUKDFNjb3Jl",
+            "TWVzc2FnZRIKCgJpZBgBIAEoDRINCgVzY29yZRgCIAEoDRIMCgRuYW1lGAMg",
+            "ASgJEgwKBHRlYW0YBCABKA0iHwoPU3RvcEdhbWVNZXNzYWdlEgwKBHRlYW0Y",
+            "ASABKA0ihwIKDUdhbWVPbk1lc3NhZ2USMQoQY2xpZW50X2lucHV0X21zZxgB",
+            "IAEoCzIVLmpldF9za2kuSW5wdXRNZXNzYWdlSAASMQoQc2VydmVyX3N0YXRl",
+            "X21zZxgCIAEoCzIVLmpldF9za2kuU3RhdGVNZXNzYWdlSAASKgoJc2NvcmVf",
+            "bXNnGAMgASgLMhUuamV0X3NraS5TY29yZU1lc3NhZ2VIABIxCg1zdG9wX2dh",
+            "bWVfbXNnGAQgASgLMhguamV0X3NraS5TdG9wR2FtZU1lc3NhZ2VIABImCgdh",
+            "Y2tfbXNnGAUgASgLMhMuamV0X3NraS5BY2tNZXNzYWdlSABCCQoHZ2FtZV9v",
+            "bkIOqgILSmV0U2tpUHJvdG9iBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -75,7 +76,7 @@ namespace JetSkiProto {
             new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.AckMessage), global::JetSkiProto.AckMessage.Parser, new[]{ "Id" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.GameOffMessage), global::JetSkiProto.GameOffMessage.Parser, new[]{ "JoinServerMsg", "AcceptJoinMsg", "NewPlayerMsg", "StartGameMsg", "AckMsg" }, new[]{ "GameOff" }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.InputMessage), global::JetSkiProto.InputMessage.Parser, new[]{ "Id", "DeliveryTime", "StartTickNumber", "Inputs" }, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.InputMessage.Types.Inputs), global::JetSkiProto.InputMessage.Types.Inputs.Parser, new[]{ "Forward", "Sideways", "WaterBoosting", "RocketBoosting" }, null, null, null)}),
-            new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.StateMessage), global::JetSkiProto.StateMessage.Parser, new[]{ "Id", "DeliveryTime", "TickNumber", "Position", "Rotation", "Velocity", "AngularVelocity" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.StateMessage), global::JetSkiProto.StateMessage.Parser, new[]{ "Id", "DeliveryTime", "TickNumber", "Position", "Rotation", "Velocity", "AngularVelocity", "WaterBoosting", "RocketBoosting" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.ScoreMessage), global::JetSkiProto.ScoreMessage.Parser, new[]{ "Id", "Score", "Name", "Team" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.StopGameMessage), global::JetSkiProto.StopGameMessage.Parser, new[]{ "Team" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.GameOnMessage), global::JetSkiProto.GameOnMessage.Parser, new[]{ "ClientInputMsg", "ServerStateMsg", "ScoreMsg", "StopGameMsg", "AckMsg" }, new[]{ "GameOn" }, null, null)
@@ -2203,6 +2204,8 @@ namespace JetSkiProto {
       rotation_ = other.rotation_ != null ? other.rotation_.Clone() : null;
       velocity_ = other.velocity_ != null ? other.velocity_.Clone() : null;
       angularVelocity_ = other.angularVelocity_ != null ? other.angularVelocity_.Clone() : null;
+      waterBoosting_ = other.waterBoosting_;
+      rocketBoosting_ = other.rocketBoosting_;
       _unknownFields = global::Google.Protobuf.UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -2288,6 +2291,28 @@ namespace JetSkiProto {
       }
     }
 
+    /// <summary>Field number for the "water_boosting" field.</summary>
+    public const int WaterBoostingFieldNumber = 8;
+    private bool waterBoosting_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool WaterBoosting {
+      get { return waterBoosting_; }
+      set {
+        waterBoosting_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "rocket_boosting" field.</summary>
+    public const int RocketBoostingFieldNumber = 9;
+    private bool rocketBoosting_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool RocketBoosting {
+      get { return rocketBoosting_; }
+      set {
+        rocketBoosting_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as StateMessage);
@@ -2308,6 +2333,8 @@ namespace JetSkiProto {
       if (!object.Equals(Rotation, other.Rotation)) return false;
       if (!object.Equals(Velocity, other.Velocity)) return false;
       if (!object.Equals(AngularVelocity, other.AngularVelocity)) return false;
+      if (WaterBoosting != other.WaterBoosting) return false;
+      if (RocketBoosting != other.RocketBoosting) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -2321,6 +2348,8 @@ namespace JetSkiProto {
       if (rotation_ != null) hash ^= Rotation.GetHashCode();
       if (velocity_ != null) hash ^= Velocity.GetHashCode();
       if (angularVelocity_ != null) hash ^= AngularVelocity.GetHashCode();
+      if (WaterBoosting != false) hash ^= WaterBoosting.GetHashCode();
+      if (RocketBoosting != false) hash ^= RocketBoosting.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -2362,6 +2391,14 @@ namespace JetSkiProto {
         output.WriteRawTag(58);
         output.WriteMessage(AngularVelocity);
       }
+      if (WaterBoosting != false) {
+        output.WriteRawTag(64);
+        output.WriteBool(WaterBoosting);
+      }
+      if (RocketBoosting != false) {
+        output.WriteRawTag(72);
+        output.WriteBool(RocketBoosting);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -2390,6 +2427,12 @@ namespace JetSkiProto {
       }
       if (angularVelocity_ != null) {
         size += 1 + global::Google.Protobuf.CodedOutputStream.ComputeMessageSize(AngularVelocity);
+      }
+      if (WaterBoosting != false) {
+        size += 1 + 1;
+      }
+      if (RocketBoosting != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -2434,6 +2477,12 @@ namespace JetSkiProto {
           angularVelocity_ = new global::JetSkiProto.MyVector3();
         }
         AngularVelocity.MergeFrom(other.AngularVelocity);
+      }
+      if (other.WaterBoosting != false) {
+        WaterBoosting = other.WaterBoosting;
+      }
+      if (other.RocketBoosting != false) {
+        RocketBoosting = other.RocketBoosting;
       }
       _unknownFields = global::Google.Protobuf.UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -2484,6 +2533,14 @@ namespace JetSkiProto {
               angularVelocity_ = new global::JetSkiProto.MyVector3();
             }
             input.ReadMessage(angularVelocity_);
+            break;
+          }
+          case 64: {
+            WaterBoosting = input.ReadBool();
+            break;
+          }
+          case 72: {
+            RocketBoosting = input.ReadBool();
             break;
           }
         }

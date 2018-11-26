@@ -107,10 +107,9 @@ namespace JetSki
 					else
 						BoatAlignNormal.instance.PrePhysicsStep(go.GetComponent<Rigidbody>(), new Inputs{}, fdt, Time.deltaTime);
 
-					Vector3 zeroVec3 = new Vector3(0,0,0);
-					if(Vector3.Distance(zeroVec3, go.transform.position) > 750) //keep within dome
+					if(Vector3.Distance(placement, go.transform.position) > 750) //keep within dome
 					{
-						go.GetComponent<Rigidbody>().AddForce((zeroVec3 - transform.position).normalized * 100 * Time.deltaTime);
+						go.GetComponent<Rigidbody>().AddForce((placement - go.transform.position).normalized * 100 * fdt, ForceMode.VelocityChange);
 					}
 				}
 

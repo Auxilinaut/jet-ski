@@ -232,6 +232,7 @@ GameObject:
   - component: {fileID: 1519163899}
   - component: {fileID: 1519163898}
   - component: {fileID: 1519163901}
+  - component: {fileID: 1519163902}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -267,7 +268,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 1600
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -282,7 +283,7 @@ Camera:
   m_HDR: 1
   m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
-  m_ForceIntoRT: 0
+  m_ForceIntoRT: 1
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
@@ -315,6 +316,18 @@ MonoBehaviour:
   simForwardInput: 0
   _requireLMBToMove: 0
   _fixedDt: 0.016666668
+--- !u!114 &1519163902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1519163897}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c97e28b142968241af799e503495ff4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 2100000, guid: cb84052033a43d84787af32527b10440, type: 2}
 --- !u!1001 &1574803132
 Prefab:
   m_ObjectHideFlags: 0

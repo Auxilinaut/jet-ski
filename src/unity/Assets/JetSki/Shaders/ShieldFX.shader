@@ -7,10 +7,10 @@ Shader "Unlit/ShieldFX"
 		_Fresnel("Fresnel Intensity", Range(0,200)) = 3.0
 		_FresnelWidth("Fresnel Width", Range(0,2)) = 3.0
 		_Distort("Distort", Range(0, 100)) = 1.0
-		_IntersectionThreshold("Highlight of intersection threshold", range(0,1)) = .1 //Max difference for intersections
+		_IntersectionThreshold("Highlight of intersection threshold", range(0,1)) = .5 //Max difference for intersections
 		_ScrollSpeedU("Scroll U Speed",float) = 2
 		_ScrollSpeedV("Scroll V Speed",float) = 0
-		//[ToggleOff]_CullOff("Cull Front Side Intersection",float) = 1
+		//_CullOff("Cull Intersection",float) = 1
 	}
 	SubShader
 	{ 
@@ -19,8 +19,8 @@ Shader "Unlit/ShieldFX"
 		GrabPass{ "_GrabTexture" }
 		Pass
 		{
-			Lighting Off ZWrite On
-			Blend SrcAlpha OneMinusSrcAlpha
+			Lighting Off ZWrite Off
+			Blend SrcAlpha SrcAlpha
 			Cull Off
 
 			CGPROGRAM
@@ -58,8 +58,8 @@ Shader "Unlit/ShieldFX"
 				o.uv.y += _Time * _ScrollSpeedV;
 
 				//fresnel 
-				fixed3 viewDir = normalize(ObjSpaceViewDir(v.vertex));
-				fixed dotProduct = 1 - saturate(dot(v.normal, viewDir));
+				fixed3 viewDir = v.vertex;
+				fixed dotProduct = 1 - dot(v.normal, viewDir);
 				o.rimColor = smoothstep(1 - _FresnelWidth, 1.0, dotProduct) * .5f;
 				o.screenPos = ComputeScreenPos(o.vertex);
 				COMPUTE_EYEDEPTH(o.screenPos.z);//eye space depth of the vertex 
@@ -82,7 +82,7 @@ Shader "Unlit/ShieldFX"
 				main *= _MainColor * pow(_Fresnel,i.rimColor) ;
 				
 				//lerp distort color & fresnel color
-				main = lerp(distortColor, main, i.rimColor.r);
+				main = lerp(main, distortColor, i.rimColor.r);
 				main += (1 - intersect) * (face > 0 ? .03:.3) * _MainColor * _Fresnel;
 				return fixed4(main,.9);
 			}
