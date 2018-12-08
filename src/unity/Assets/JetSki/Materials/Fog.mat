@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Fog
-  m_Shader: {fileID: 4800000, guid: d826b6754f3488642966186c1e5878c2, type: 3}
+  m_Shader: {fileID: 4800000, guid: 91e04a3628c050a47ab5dba2954178bd, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -23,7 +23,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ColorRamp:
-        m_Texture: {fileID: 2800000, guid: 89d1bb2c2fa1f1a44879daad0238456b, type: 3}
+        m_Texture: {fileID: 2800000, guid: 73fd396a82b5181479f6602abdf36d5e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -62,12 +62,12 @@ Material:
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
-    - _Distort: 1
+    - _Distort: 0
     - _DstBlend: 0
-    - _FogAmount: 10000
-    - _FogIntensity: 0.56
-    - _Fresnel: 3
-    - _FresnelWidth: 3
+    - _FogAmount: 100
+    - _FogIntensity: 0.78
+    - _Fresnel: 0
+    - _FresnelWidth: 0.12
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
