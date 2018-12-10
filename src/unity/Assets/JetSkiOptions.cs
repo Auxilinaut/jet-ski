@@ -11,7 +11,6 @@ public class JetSkiOptions : MonoBehaviour {
 	ParticleSystem.EmissionModule rocketEmission;
 	ParticleSystem.EmissionModule waterEmission;
 
-
 	// Use this for initialization
 	void Start () {
 		rocketEmission = rocketSystem.emission;
@@ -23,4 +22,5 @@ public class JetSkiOptions : MonoBehaviour {
 		rocketEmission.enabled = rocketBoosting;
 		waterEmission.enabled = waterBoosting;
 	}
+
 }

@@ -1,53 +1,92 @@
 fileFormatVersion: 2
-guid: 5dd54889312d9584f9309601f0f68918
+guid: e532e7436d65bab42a4eeaa8986d74e7
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
     100000: //RootNode
+    100002: boar_armature
+    100004: boar_mesh_000
+    100006: body
+    100008: body_001
+    100010: body_001_L
+    100012: body_001_L_001
+    100014: body_001_L_002
+    100016: body_001_L_003
+    100018: body_001_L_004
+    100020: body_001_R
+    100022: body_001_R_001
+    100024: body_001_R_002
+    100026: body_001_R_003
+    100028: body_001_R_004
+    100030: body_002
+    100032: body_L
+    100034: body_L_001
+    100036: body_L_002
+    100038: body_L_003
+    100040: body_L_004
+    100042: body_R
+    100044: body_R_001
+    100046: body_R_002
+    100048: body_R_003
+    100050: body_R_004
+    100052: head
+    100054: Hips
+    100056: nose
+    100058: ROOT
+    100060: tail
+    100062: tail_001
+    100064: tail_002
+    100066: tail_003
+    100068: tail_004
     400000: //RootNode
-    2100000: Walls
-    2100002: Poison
-    2100004: Dark_Grey
-    2100006: Light_Grey
-    2100008: offWhite
-    2100010: Lighter_Grey
-    2300000: //RootNode
-    3300000: //RootNode
-    4300000: Basic_Level
+    400002: boar_armature
+    400004: boar_mesh_000
+    400006: body
+    400008: body_001
+    400010: body_001_L
+    400012: body_001_L_001
+    400014: body_001_L_002
+    400016: body_001_L_003
+    400018: body_001_L_004
+    400020: body_001_R
+    400022: body_001_R_001
+    400024: body_001_R_002
+    400026: body_001_R_003
+    400028: body_001_R_004
+    400030: body_002
+    400032: body_L
+    400034: body_L_001
+    400036: body_L_002
+    400038: body_L_003
+    400040: body_L_004
+    400042: body_R
+    400044: body_R_001
+    400046: body_R_002
+    400048: body_R_003
+    400050: body_R_004
+    400052: head
+    400054: Hips
+    400056: nose
+    400058: ROOT
+    400060: tail
+    400062: tail_001
+    400064: tail_002
+    400066: tail_003
+    400068: tail_004
+    2100000: Material__boar
+    4300000: boar_mesh_000
     7400000: Default Take
+    7400002: attack
+    7400004: default
+    7400006: walk
     9500000: //RootNode
-    2186277476908879412: ImportLogs
+    13700000: boar_mesh_000
   externalObjects:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Dark_Grey
-    second: {fileID: 2100000, guid: 17af4b6b051aa8245942cb31ad52718e, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Light_Grey
-    second: {fileID: 2100000, guid: 9bd0ca41a07615b4b821ca1a645cf263, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Lighter_Grey
-    second: {fileID: 2100000, guid: 257effa71269af2449b1d1fd52cc3ad5, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Poison
-    second: {fileID: 2100000, guid: 3af7ea07dbe8880499a9c9b11a4c38dc, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Walls
-    second: {fileID: 2100000, guid: a58d4ab1686f8f644ad511df8333eac6, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: offWhite
-    second: {fileID: 2100000, guid: 12f3bbe57c0e2ec45a21f4debcac4b66, type: 2}
+      name: Material__boar
+    second: {fileID: 2100000, guid: 43af7c84bb27c1e46b6d1ecd4ce86586, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

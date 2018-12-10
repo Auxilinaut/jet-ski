@@ -9,7 +9,6 @@
 using pbc = global::Google.Protobuf.Collections;
 using pbr = global::Google.Protobuf.Reflection;
 using scg = global::System.Collections.Generic;
-using UnityEngine;
 namespace JetSkiProto {
 
   /// <summary>Holder for reflection information generated from jet_ski_proto.proto</summary>
@@ -25,498 +24,67 @@ namespace JetSkiProto {
     static JetSkiProtoReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChNqZXRfc2tpX3Byb3RvLnByb3RvEgdqZXRfc2tpIjoKDE15UXVhdGVybmlv",
-            "bhIJCgF4GAEgASgCEgkKAXkYAiABKAISCQoBehgDIAEoAhIJCgF3GAQgASgC",
-            "IiwKCU15VmVjdG9yMxIJCgF4GAEgASgCEgkKAXkYAiABKAISCQoBehgDIAEo",
-            "AiIhChFKb2luU2VydmVyTWVzc2FnZRIMCgRuYW1lGAEgASgJIr4BChFBY2Nl",
-            "cHRKb2luTWVzc2FnZRIKCgJpZBgBIAEoDRINCgVhcmVuYRgCIAEoCRIMCgR0",
-            "ZWFtGAMgASgNEiQKCHBvc2l0aW9uGAQgASgLMhIuamV0X3NraS5NeVZlY3Rv",
-            "cjMSJwoIcm90YXRpb24YBSABKAsyFS5qZXRfc2tpLk15UXVhdGVybmlvbhIx",
-            "Cg5uZXdfcGxheWVyX21zZxgGIAMoCzIZLmpldF9za2kuTmV3UGxheWVyTWVz",
-            "c2FnZSKJAQoQTmV3UGxheWVyTWVzc2FnZRIKCgJpZBgBIAEoDRIMCgRuYW1l",
-            "GAIgASgJEgwKBHRlYW0YAyABKA0SJAoIcG9zaXRpb24YBCABKAsyEi5qZXRf",
-            "c2tpLk15VmVjdG9yMxInCghyb3RhdGlvbhgFIAEoCzIVLmpldF9za2kuTXlR",
-            "dWF0ZXJuaW9uIhIKEFN0YXJ0R2FtZU1lc3NhZ2UiGAoKQWNrTWVzc2FnZRIK",
-            "CgJpZBgBIAEoDSKcAgoOR2FtZU9mZk1lc3NhZ2USNQoPam9pbl9zZXJ2ZXJf",
-            "bXNnGAEgASgLMhouamV0X3NraS5Kb2luU2VydmVyTWVzc2FnZUgAEjUKD2Fj",
-            "Y2VwdF9qb2luX21zZxgCIAEoCzIaLmpldF9za2kuQWNjZXB0Sm9pbk1lc3Nh",
-            "Z2VIABIzCg5uZXdfcGxheWVyX21zZxgDIAEoCzIZLmpldF9za2kuTmV3UGxh",
-            "eWVyTWVzc2FnZUgAEjMKDnN0YXJ0X2dhbWVfbXNnGAQgASgLMhkuamV0X3Nr",
-            "aS5TdGFydEdhbWVNZXNzYWdlSAASJgoHYWNrX21zZxgFIAEoCzITLmpldF9z",
-            "a2kuQWNrTWVzc2FnZUgAQgoKCGdhbWVfb2ZmItgBCgxJbnB1dE1lc3NhZ2US",
-            "CgoCaWQYASABKA0SFQoNZGVsaXZlcnlfdGltZRgCIAEoAhIZChFzdGFydF90",
-            "aWNrX251bWJlchgDIAEoDRIsCgZpbnB1dHMYBCADKAsyHC5qZXRfc2tpLklu",
-            "cHV0TWVzc2FnZS5JbnB1dHMaXAoGSW5wdXRzEg8KB2ZvcndhcmQYASABKAIS",
-            "EAoIc2lkZXdheXMYAiABKAISFgoOd2F0ZXJfYm9vc3RpbmcYAyABKAgSFwoP",
-            "cm9ja2V0X2Jvb3N0aW5nGAQgASgIIpoCCgxTdGF0ZU1lc3NhZ2USCgoCaWQY",
-            "ASABKA0SFQoNZGVsaXZlcnlfdGltZRgCIAEoAhITCgt0aWNrX251bWJlchgD",
-            "IAEoDRIkCghwb3NpdGlvbhgEIAEoCzISLmpldF9za2kuTXlWZWN0b3IzEicK",
-            "CHJvdGF0aW9uGAUgASgLMhUuamV0X3NraS5NeVF1YXRlcm5pb24SJAoIdmVs",
-            "b2NpdHkYBiABKAsyEi5qZXRfc2tpLk15VmVjdG9yMxIsChBhbmd1bGFyX3Zl",
-            "bG9jaXR5GAcgASgLMhIuamV0X3NraS5NeVZlY3RvcjMSFgoOd2F0ZXJfYm9v",
-            "c3RpbmcYCCABKAgSFwoPcm9ja2V0X2Jvb3N0aW5nGAkgASgIIkUKDFNjb3Jl",
-            "TWVzc2FnZRIKCgJpZBgBIAEoDRINCgVzY29yZRgCIAEoDRIMCgRuYW1lGAMg",
-            "ASgJEgwKBHRlYW0YBCABKA0iHwoPU3RvcEdhbWVNZXNzYWdlEgwKBHRlYW0Y",
-            "ASABKA0ihwIKDUdhbWVPbk1lc3NhZ2USMQoQY2xpZW50X2lucHV0X21zZxgB",
-            "IAEoCzIVLmpldF9za2kuSW5wdXRNZXNzYWdlSAASMQoQc2VydmVyX3N0YXRl",
-            "X21zZxgCIAEoCzIVLmpldF9za2kuU3RhdGVNZXNzYWdlSAASKgoJc2NvcmVf",
-            "bXNnGAMgASgLMhUuamV0X3NraS5TY29yZU1lc3NhZ2VIABIxCg1zdG9wX2dh",
-            "bWVfbXNnGAQgASgLMhguamV0X3NraS5TdG9wR2FtZU1lc3NhZ2VIABImCgdh",
-            "Y2tfbXNnGAUgASgLMhMuamV0X3NraS5BY2tNZXNzYWdlSABCCQoHZ2FtZV9v",
-            "bkIOqgILSmV0U2tpUHJvdG9iBnByb3RvMw=="));
+            "ChNqZXRfc2tpX3Byb3RvLnByb3RvEgdqZXRfc2tpGhNqZXRfc2tpX3R5cGVz",
+            "LnByb3RvGhRqZXRfc2tpX3NhdmluZy5wcm90byIhChFKb2luU2VydmVyTWVz",
+            "c2FnZRIMCgRuYW1lGAEgASgJIr4BChFBY2NlcHRKb2luTWVzc2FnZRIKCgJp",
+            "ZBgBIAEoDRINCgVhcmVuYRgCIAEoCRIMCgR0ZWFtGAMgASgNEiQKCHBvc2l0",
+            "aW9uGAQgASgLMhIuamV0X3NraS5NeVZlY3RvcjMSJwoIcm90YXRpb24YBSAB",
+            "KAsyFS5qZXRfc2tpLk15UXVhdGVybmlvbhIxCg5uZXdfcGxheWVyX21zZxgG",
+            "IAMoCzIZLmpldF9za2kuTmV3UGxheWVyTWVzc2FnZSKJAQoQTmV3UGxheWVy",
+            "TWVzc2FnZRIKCgJpZBgBIAEoDRIMCgRuYW1lGAIgASgJEgwKBHRlYW0YAyAB",
+            "KA0SJAoIcG9zaXRpb24YBCABKAsyEi5qZXRfc2tpLk15VmVjdG9yMxInCghy",
+            "b3RhdGlvbhgFIAEoCzIVLmpldF9za2kuTXlRdWF0ZXJuaW9uIhIKEFN0YXJ0",
+            "R2FtZU1lc3NhZ2UiGAoKQWNrTWVzc2FnZRIKCgJpZBgBIAEoDSL0AgoOR2Ft",
+            "ZU9mZk1lc3NhZ2USNQoPam9pbl9zZXJ2ZXJfbXNnGAEgASgLMhouamV0X3Nr",
+            "aS5Kb2luU2VydmVyTWVzc2FnZUgAEjUKD2FjY2VwdF9qb2luX21zZxgCIAEo",
+            "CzIaLmpldF9za2kuQWNjZXB0Sm9pbk1lc3NhZ2VIABIzCg5uZXdfcGxheWVy",
+            "X21zZxgDIAEoCzIZLmpldF9za2kuTmV3UGxheWVyTWVzc2FnZUgAEjMKDnN0",
+            "YXJ0X2dhbWVfbXNnGAQgASgLMhkuamV0X3NraS5TdGFydEdhbWVNZXNzYWdl",
+            "SAASLAoKcmVwbGF5X21zZxgFIAEoCzIWLmpldF9za2kuUmVwbGF5TWVzc2Fn",
+            "ZUgAEigKCHNhdmVfbXNnGAYgASgLMhQuamV0X3NraS5TYXZlTWVzc2FnZUgA",
+            "EiYKB2Fja19tc2cYByABKAsyEy5qZXRfc2tpLkFja01lc3NhZ2VIAEIKCghn",
+            "YW1lX29mZiLYAQoMSW5wdXRNZXNzYWdlEgoKAmlkGAEgASgNEhUKDWRlbGl2",
+            "ZXJ5X3RpbWUYAiABKAISGQoRc3RhcnRfdGlja19udW1iZXIYAyABKA0SLAoG",
+            "aW5wdXRzGAQgAygLMhwuamV0X3NraS5JbnB1dE1lc3NhZ2UuSW5wdXRzGlwK",
+            "BklucHV0cxIPCgdmb3J3YXJkGAEgASgCEhAKCHNpZGV3YXlzGAIgASgCEhYK",
+            "DndhdGVyX2Jvb3N0aW5nGAMgASgIEhcKD3JvY2tldF9ib29zdGluZxgEIAEo",
+            "CCKaAgoMU3RhdGVNZXNzYWdlEgoKAmlkGAEgASgNEhUKDWRlbGl2ZXJ5X3Rp",
+            "bWUYAiABKAISEwoLdGlja19udW1iZXIYAyABKA0SJAoIcG9zaXRpb24YBCAB",
+            "KAsyEi5qZXRfc2tpLk15VmVjdG9yMxInCghyb3RhdGlvbhgFIAEoCzIVLmpl",
+            "dF9za2kuTXlRdWF0ZXJuaW9uEiQKCHZlbG9jaXR5GAYgASgLMhIuamV0X3Nr",
+            "aS5NeVZlY3RvcjMSLAoQYW5ndWxhcl92ZWxvY2l0eRgHIAEoCzISLmpldF9z",
+            "a2kuTXlWZWN0b3IzEhYKDndhdGVyX2Jvb3N0aW5nGAggASgIEhcKD3JvY2tl",
+            "dF9ib29zdGluZxgJIAEoCCJFCgxTY29yZU1lc3NhZ2USCgoCaWQYASABKA0S",
+            "DQoFc2NvcmUYAiABKA0SDAoEbmFtZRgDIAEoCRIMCgR0ZWFtGAQgASgNIh8K",
+            "D1N0b3BHYW1lTWVzc2FnZRIMCgR0ZWFtGAEgASgNIrUCCg1HYW1lT25NZXNz",
+            "YWdlEjEKEGNsaWVudF9pbnB1dF9tc2cYASABKAsyFS5qZXRfc2tpLklucHV0",
+            "TWVzc2FnZUgAEjEKEHNlcnZlcl9zdGF0ZV9tc2cYAiABKAsyFS5qZXRfc2tp",
+            "LlN0YXRlTWVzc2FnZUgAEioKCXNjb3JlX21zZxgDIAEoCzIVLmpldF9za2ku",
+            "U2NvcmVNZXNzYWdlSAASMQoNc3RvcF9nYW1lX21zZxgEIAEoCzIYLmpldF9z",
+            "a2kuU3RvcEdhbWVNZXNzYWdlSAASLAoKcmVwbGF5X21zZxgFIAEoCzIWLmpl",
+            "dF9za2kuUmVwbGF5TWVzc2FnZUgAEiYKB2Fja19tc2cYBiABKAsyEy5qZXRf",
+            "c2tpLkFja01lc3NhZ2VIAEIJCgdnYW1lX29uQg6qAgtKZXRTa2lQcm90b2IG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { },
+          new pbr::FileDescriptor[] { global::JetSkiProto.JetSkiTypesReflection.Descriptor, global::JetSkiProto.JetSkiSavingReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.MyQuaternion), global::JetSkiProto.MyQuaternion.Parser, new[]{ "X", "Y", "Z", "W" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.MyVector3), global::JetSkiProto.MyVector3.Parser, new[]{ "X", "Y", "Z" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.JoinServerMessage), global::JetSkiProto.JoinServerMessage.Parser, new[]{ "Name" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.AcceptJoinMessage), global::JetSkiProto.AcceptJoinMessage.Parser, new[]{ "Id", "Arena", "Team", "Position", "Rotation", "NewPlayerMsg" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.NewPlayerMessage), global::JetSkiProto.NewPlayerMessage.Parser, new[]{ "Id", "Name", "Team", "Position", "Rotation" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.StartGameMessage), global::JetSkiProto.StartGameMessage.Parser, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.AckMessage), global::JetSkiProto.AckMessage.Parser, new[]{ "Id" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.GameOffMessage), global::JetSkiProto.GameOffMessage.Parser, new[]{ "JoinServerMsg", "AcceptJoinMsg", "NewPlayerMsg", "StartGameMsg", "AckMsg" }, new[]{ "GameOff" }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.GameOffMessage), global::JetSkiProto.GameOffMessage.Parser, new[]{ "JoinServerMsg", "AcceptJoinMsg", "NewPlayerMsg", "StartGameMsg", "ReplayMsg", "SaveMsg", "AckMsg" }, new[]{ "GameOff" }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.InputMessage), global::JetSkiProto.InputMessage.Parser, new[]{ "Id", "DeliveryTime", "StartTickNumber", "Inputs" }, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.InputMessage.Types.Inputs), global::JetSkiProto.InputMessage.Types.Inputs.Parser, new[]{ "Forward", "Sideways", "WaterBoosting", "RocketBoosting" }, null, null, null)}),
             new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.StateMessage), global::JetSkiProto.StateMessage.Parser, new[]{ "Id", "DeliveryTime", "TickNumber", "Position", "Rotation", "Velocity", "AngularVelocity", "WaterBoosting", "RocketBoosting" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.ScoreMessage), global::JetSkiProto.ScoreMessage.Parser, new[]{ "Id", "Score", "Name", "Team" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.StopGameMessage), global::JetSkiProto.StopGameMessage.Parser, new[]{ "Team" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.GameOnMessage), global::JetSkiProto.GameOnMessage.Parser, new[]{ "ClientInputMsg", "ServerStateMsg", "ScoreMsg", "StopGameMsg", "AckMsg" }, new[]{ "GameOn" }, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::JetSkiProto.GameOnMessage), global::JetSkiProto.GameOnMessage.Parser, new[]{ "ClientInputMsg", "ServerStateMsg", "ScoreMsg", "StopGameMsg", "ReplayMsg", "AckMsg" }, new[]{ "GameOn" }, null, null)
           }));
     }
     #endregion
 
   }
   #region Messages
-  public sealed partial class MyQuaternion : global::Google.Protobuf.IMessage<MyQuaternion> {
-    private static readonly global::Google.Protobuf.MessageParser<MyQuaternion> _parser = new global::Google.Protobuf.MessageParser<MyQuaternion>(() => new MyQuaternion());
-    private global::Google.Protobuf.UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static global::Google.Protobuf.MessageParser<MyQuaternion> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[0]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    pbr::MessageDescriptor global::Google.Protobuf.IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public MyQuaternion() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public MyQuaternion(MyQuaternion other) : this() {
-      x_ = other.x_;
-      y_ = other.y_;
-      z_ = other.z_;
-      w_ = other.w_;
-      _unknownFields = global::Google.Protobuf.UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    public MyQuaternion(float x, float y, float z, float w) : this() {
-      x_ = x;
-      y_ = y;
-      z_ = z;
-      w_ = w;
-    }
-
-    public static implicit operator Quaternion(MyQuaternion v)
-    {
-          return new Quaternion(v.x_, v.y_, v.z_, v.w_);
-    }
-
-    public static implicit operator MyQuaternion(Quaternion v)
-    {
-          return new MyQuaternion(v.x, v.y, v.z, v.w);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public MyQuaternion Clone() {
-      return new MyQuaternion(this);
-    }
-
-    /// <summary>Field number for the "x" field.</summary>
-    public const int XFieldNumber = 1;
-    private float x_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public float X {
-      get { return x_; }
-      set {
-        x_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "y" field.</summary>
-    public const int YFieldNumber = 2;
-    private float y_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public float Y {
-      get { return y_; }
-      set {
-        y_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "z" field.</summary>
-    public const int ZFieldNumber = 3;
-    private float z_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public float Z {
-      get { return z_; }
-      set {
-        z_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "w" field.</summary>
-    public const int WFieldNumber = 4;
-    private float w_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public float W {
-      get { return w_; }
-      set {
-        w_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override bool Equals(object other) {
-      return Equals(other as MyQuaternion);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(MyQuaternion other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(X, other.X)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Y, other.Y)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Z, other.Z)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(W, other.W)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (X != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(X);
-      if (Y != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Y);
-      if (Z != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Z);
-      if (W != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(W);
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override string ToString() {
-      return global::Google.Protobuf.JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void WriteTo(global::Google.Protobuf.CodedOutputStream output) {
-      if (X != 0F) {
-        output.WriteRawTag(13);
-        output.WriteFloat(X);
-      }
-      if (Y != 0F) {
-        output.WriteRawTag(21);
-        output.WriteFloat(Y);
-      }
-      if (Z != 0F) {
-        output.WriteRawTag(29);
-        output.WriteFloat(Z);
-      }
-      if (W != 0F) {
-        output.WriteRawTag(37);
-        output.WriteFloat(W);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int CalculateSize() {
-      int size = 0;
-      if (X != 0F) {
-        size += 1 + 4;
-      }
-      if (Y != 0F) {
-        size += 1 + 4;
-      }
-      if (Z != 0F) {
-        size += 1 + 4;
-      }
-      if (W != 0F) {
-        size += 1 + 4;
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(MyQuaternion other) {
-      if (other == null) {
-        return;
-      }
-      if (other.X != 0F) {
-        X = other.X;
-      }
-      if (other.Y != 0F) {
-        Y = other.Y;
-      }
-      if (other.Z != 0F) {
-        Z = other.Z;
-      }
-      if (other.W != 0F) {
-        W = other.W;
-      }
-      _unknownFields = global::Google.Protobuf.UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(global::Google.Protobuf.CodedInputStream input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = global::Google.Protobuf.UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 13: {
-            X = input.ReadFloat();
-            break;
-          }
-          case 21: {
-            Y = input.ReadFloat();
-            break;
-          }
-          case 29: {
-            Z = input.ReadFloat();
-            break;
-          }
-          case 37: {
-            W = input.ReadFloat();
-            break;
-          }
-        }
-      }
-    }
-
-  }
-
-  public sealed partial class MyVector3 : global::Google.Protobuf.IMessage<MyVector3> {
-    private static readonly global::Google.Protobuf.MessageParser<MyVector3> _parser = new global::Google.Protobuf.MessageParser<MyVector3>(() => new MyVector3());
-    private global::Google.Protobuf.UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static global::Google.Protobuf.MessageParser<MyVector3> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[1]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    pbr::MessageDescriptor global::Google.Protobuf.IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public MyVector3() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public MyVector3(MyVector3 other) : this() {
-      x_ = other.x_;
-      y_ = other.y_;
-      z_ = other.z_;
-      _unknownFields = global::Google.Protobuf.UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    public MyVector3(float x, float y, float z) : this() {
-      x_ = x;
-      y_ = y;
-      z_ = z;
-    }
-
-    public static implicit operator Vector3(MyVector3 v)
-    {
-          return new Vector3(v.x_, v.y_, v.z_);
-    }
-
-    public static implicit operator MyVector3(Vector3 v)
-    {
-          return new MyVector3(v.x, v.y, v.z);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public MyVector3 Clone() {
-      return new MyVector3(this);
-    }
-
-    /// <summary>Field number for the "x" field.</summary>
-    public const int XFieldNumber = 1;
-    private float x_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public float X {
-      get { return x_; }
-      set {
-        x_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "y" field.</summary>
-    public const int YFieldNumber = 2;
-    private float y_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public float Y {
-      get { return y_; }
-      set {
-        y_ = value;
-      }
-    }
-
-    /// <summary>Field number for the "z" field.</summary>
-    public const int ZFieldNumber = 3;
-    private float z_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public float Z {
-      get { return z_; }
-      set {
-        z_ = value;
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override bool Equals(object other) {
-      return Equals(other as MyVector3);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(MyVector3 other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(X, other.X)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Y, other.Y)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Z, other.Z)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override int GetHashCode() {
-      int hash = 1;
-      if (X != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(X);
-      if (Y != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Y);
-      if (Z != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Z);
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override string ToString() {
-      return global::Google.Protobuf.JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void WriteTo(global::Google.Protobuf.CodedOutputStream output) {
-      if (X != 0F) {
-        output.WriteRawTag(13);
-        output.WriteFloat(X);
-      }
-      if (Y != 0F) {
-        output.WriteRawTag(21);
-        output.WriteFloat(Y);
-      }
-      if (Z != 0F) {
-        output.WriteRawTag(29);
-        output.WriteFloat(Z);
-      }
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int CalculateSize() {
-      int size = 0;
-      if (X != 0F) {
-        size += 1 + 4;
-      }
-      if (Y != 0F) {
-        size += 1 + 4;
-      }
-      if (Z != 0F) {
-        size += 1 + 4;
-      }
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(MyVector3 other) {
-      if (other == null) {
-        return;
-      }
-      if (other.X != 0F) {
-        X = other.X;
-      }
-      if (other.Y != 0F) {
-        Y = other.Y;
-      }
-      if (other.Z != 0F) {
-        Z = other.Z;
-      }
-      _unknownFields = global::Google.Protobuf.UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(global::Google.Protobuf.CodedInputStream input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = global::Google.Protobuf.UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 13: {
-            X = input.ReadFloat();
-            break;
-          }
-          case 21: {
-            Y = input.ReadFloat();
-            break;
-          }
-          case 29: {
-            Z = input.ReadFloat();
-            break;
-          }
-        }
-      }
-    }
-
-  }
-
   /// <summary>
   ///client: here's my name, can I join?
   /// </summary>
@@ -528,7 +96,7 @@ namespace JetSkiProto {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[2]; }
+      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[0]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -650,7 +218,7 @@ namespace JetSkiProto {
   }
 
   /// <summary>
-  ///server: ok here's your id, load this arena, and wait at this spot with the ball and whoever else is in there, ok?
+  ///server: ok here's your id, load this arena, and wait at this spot with the ball and whoever else is in there
   /// </summary>
   public sealed partial class AcceptJoinMessage : global::Google.Protobuf.IMessage<AcceptJoinMessage> {
     private static readonly global::Google.Protobuf.MessageParser<AcceptJoinMessage> _parser = new global::Google.Protobuf.MessageParser<AcceptJoinMessage>(() => new AcceptJoinMessage());
@@ -660,7 +228,7 @@ namespace JetSkiProto {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[3]; }
+      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[1]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -926,7 +494,7 @@ namespace JetSkiProto {
   }
 
   /// <summary>
-  ///server: everybody here's another client, ok?
+  ///server: everybody here's another client
   /// </summary>
   public sealed partial class NewPlayerMessage : global::Google.Protobuf.IMessage<NewPlayerMessage> {
     private static readonly global::Google.Protobuf.MessageParser<NewPlayerMessage> _parser = new global::Google.Protobuf.MessageParser<NewPlayerMessage>(() => new NewPlayerMessage());
@@ -936,7 +504,7 @@ namespace JetSkiProto {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[4]; }
+      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[2]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1182,7 +750,7 @@ namespace JetSkiProto {
   }
 
   /// <summary>
-  ///server: let's start, ok?
+  ///server: let's start
   /// </summary>
   public sealed partial class StartGameMessage : global::Google.Protobuf.IMessage<StartGameMessage> {
     private static readonly global::Google.Protobuf.MessageParser<StartGameMessage> _parser = new global::Google.Protobuf.MessageParser<StartGameMessage>(() => new StartGameMessage());
@@ -1192,7 +760,7 @@ namespace JetSkiProto {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[5]; }
+      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[3]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1286,7 +854,7 @@ namespace JetSkiProto {
   }
 
   /// <summary>
-  ///ok
+  ///this may be useless
   /// </summary>
   public sealed partial class AckMessage : global::Google.Protobuf.IMessage<AckMessage> {
     private static readonly global::Google.Protobuf.MessageParser<AckMessage> _parser = new global::Google.Protobuf.MessageParser<AckMessage>(() => new AckMessage());
@@ -1296,7 +864,7 @@ namespace JetSkiProto {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[6]; }
+      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1428,7 +996,7 @@ namespace JetSkiProto {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[7]; }
+      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1457,6 +1025,12 @@ namespace JetSkiProto {
           break;
         case GameOffOneofCase.StartGameMsg:
           StartGameMsg = other.StartGameMsg.Clone();
+          break;
+        case GameOffOneofCase.ReplayMsg:
+          ReplayMsg = other.ReplayMsg.Clone();
+          break;
+        case GameOffOneofCase.SaveMsg:
+          SaveMsg = other.SaveMsg.Clone();
           break;
         case GameOffOneofCase.AckMsg:
           AckMsg = other.AckMsg.Clone();
@@ -1515,8 +1089,30 @@ namespace JetSkiProto {
       }
     }
 
+    /// <summary>Field number for the "replay_msg" field.</summary>
+    public const int ReplayMsgFieldNumber = 5;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::JetSkiProto.ReplayMessage ReplayMsg {
+      get { return gameOffCase_ == GameOffOneofCase.ReplayMsg ? (global::JetSkiProto.ReplayMessage) gameOff_ : null; }
+      set {
+        gameOff_ = value;
+        gameOffCase_ = value == null ? GameOffOneofCase.None : GameOffOneofCase.ReplayMsg;
+      }
+    }
+
+    /// <summary>Field number for the "save_msg" field.</summary>
+    public const int SaveMsgFieldNumber = 6;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::JetSkiProto.SaveMessage SaveMsg {
+      get { return gameOffCase_ == GameOffOneofCase.SaveMsg ? (global::JetSkiProto.SaveMessage) gameOff_ : null; }
+      set {
+        gameOff_ = value;
+        gameOffCase_ = value == null ? GameOffOneofCase.None : GameOffOneofCase.SaveMsg;
+      }
+    }
+
     /// <summary>Field number for the "ack_msg" field.</summary>
-    public const int AckMsgFieldNumber = 5;
+    public const int AckMsgFieldNumber = 7;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::JetSkiProto.AckMessage AckMsg {
       get { return gameOffCase_ == GameOffOneofCase.AckMsg ? (global::JetSkiProto.AckMessage) gameOff_ : null; }
@@ -1534,7 +1130,9 @@ namespace JetSkiProto {
       AcceptJoinMsg = 2,
       NewPlayerMsg = 3,
       StartGameMsg = 4,
-      AckMsg = 5,
+      ReplayMsg = 5,
+      SaveMsg = 6,
+      AckMsg = 7,
     }
     private GameOffOneofCase gameOffCase_ = GameOffOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1565,6 +1163,8 @@ namespace JetSkiProto {
       if (!object.Equals(AcceptJoinMsg, other.AcceptJoinMsg)) return false;
       if (!object.Equals(NewPlayerMsg, other.NewPlayerMsg)) return false;
       if (!object.Equals(StartGameMsg, other.StartGameMsg)) return false;
+      if (!object.Equals(ReplayMsg, other.ReplayMsg)) return false;
+      if (!object.Equals(SaveMsg, other.SaveMsg)) return false;
       if (!object.Equals(AckMsg, other.AckMsg)) return false;
       if (GameOffCase != other.GameOffCase) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -1577,6 +1177,8 @@ namespace JetSkiProto {
       if (gameOffCase_ == GameOffOneofCase.AcceptJoinMsg) hash ^= AcceptJoinMsg.GetHashCode();
       if (gameOffCase_ == GameOffOneofCase.NewPlayerMsg) hash ^= NewPlayerMsg.GetHashCode();
       if (gameOffCase_ == GameOffOneofCase.StartGameMsg) hash ^= StartGameMsg.GetHashCode();
+      if (gameOffCase_ == GameOffOneofCase.ReplayMsg) hash ^= ReplayMsg.GetHashCode();
+      if (gameOffCase_ == GameOffOneofCase.SaveMsg) hash ^= SaveMsg.GetHashCode();
       if (gameOffCase_ == GameOffOneofCase.AckMsg) hash ^= AckMsg.GetHashCode();
       hash ^= (int) gameOffCase_;
       if (_unknownFields != null) {
@@ -1608,8 +1210,16 @@ namespace JetSkiProto {
         output.WriteRawTag(34);
         output.WriteMessage(StartGameMsg);
       }
-      if (gameOffCase_ == GameOffOneofCase.AckMsg) {
+      if (gameOffCase_ == GameOffOneofCase.ReplayMsg) {
         output.WriteRawTag(42);
+        output.WriteMessage(ReplayMsg);
+      }
+      if (gameOffCase_ == GameOffOneofCase.SaveMsg) {
+        output.WriteRawTag(50);
+        output.WriteMessage(SaveMsg);
+      }
+      if (gameOffCase_ == GameOffOneofCase.AckMsg) {
+        output.WriteRawTag(58);
         output.WriteMessage(AckMsg);
       }
       if (_unknownFields != null) {
@@ -1631,6 +1241,12 @@ namespace JetSkiProto {
       }
       if (gameOffCase_ == GameOffOneofCase.StartGameMsg) {
         size += 1 + global::Google.Protobuf.CodedOutputStream.ComputeMessageSize(StartGameMsg);
+      }
+      if (gameOffCase_ == GameOffOneofCase.ReplayMsg) {
+        size += 1 + global::Google.Protobuf.CodedOutputStream.ComputeMessageSize(ReplayMsg);
+      }
+      if (gameOffCase_ == GameOffOneofCase.SaveMsg) {
+        size += 1 + global::Google.Protobuf.CodedOutputStream.ComputeMessageSize(SaveMsg);
       }
       if (gameOffCase_ == GameOffOneofCase.AckMsg) {
         size += 1 + global::Google.Protobuf.CodedOutputStream.ComputeMessageSize(AckMsg);
@@ -1670,6 +1286,18 @@ namespace JetSkiProto {
             StartGameMsg = new global::JetSkiProto.StartGameMessage();
           }
           StartGameMsg.MergeFrom(other.StartGameMsg);
+          break;
+        case GameOffOneofCase.ReplayMsg:
+          if (ReplayMsg == null) {
+            ReplayMsg = new global::JetSkiProto.ReplayMessage();
+          }
+          ReplayMsg.MergeFrom(other.ReplayMsg);
+          break;
+        case GameOffOneofCase.SaveMsg:
+          if (SaveMsg == null) {
+            SaveMsg = new global::JetSkiProto.SaveMessage();
+          }
+          SaveMsg.MergeFrom(other.SaveMsg);
           break;
         case GameOffOneofCase.AckMsg:
           if (AckMsg == null) {
@@ -1727,6 +1355,24 @@ namespace JetSkiProto {
             break;
           }
           case 42: {
+            global::JetSkiProto.ReplayMessage subBuilder = new global::JetSkiProto.ReplayMessage();
+            if (gameOffCase_ == GameOffOneofCase.ReplayMsg) {
+              subBuilder.MergeFrom(ReplayMsg);
+            }
+            input.ReadMessage(subBuilder);
+            ReplayMsg = subBuilder;
+            break;
+          }
+          case 50: {
+            global::JetSkiProto.SaveMessage subBuilder = new global::JetSkiProto.SaveMessage();
+            if (gameOffCase_ == GameOffOneofCase.SaveMsg) {
+              subBuilder.MergeFrom(SaveMsg);
+            }
+            input.ReadMessage(subBuilder);
+            SaveMsg = subBuilder;
+            break;
+          }
+          case 58: {
             global::JetSkiProto.AckMessage subBuilder = new global::JetSkiProto.AckMessage();
             if (gameOffCase_ == GameOffOneofCase.AckMsg) {
               subBuilder.MergeFrom(AckMsg);
@@ -1752,7 +1398,7 @@ namespace JetSkiProto {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[8]; }
+      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2180,7 +1826,7 @@ namespace JetSkiProto {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[9]; }
+      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2550,7 +2196,7 @@ namespace JetSkiProto {
   }
 
   /// <summary>
-  ///server: time out, I'll let you know when to start again, ok?
+  ///server: time out, I'll let you know when to start again
   /// </summary>
   public sealed partial class ScoreMessage : global::Google.Protobuf.IMessage<ScoreMessage> {
     private static readonly global::Google.Protobuf.MessageParser<ScoreMessage> _parser = new global::Google.Protobuf.MessageParser<ScoreMessage>(() => new ScoreMessage());
@@ -2560,7 +2206,7 @@ namespace JetSkiProto {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[10]; }
+      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2766,7 +2412,7 @@ namespace JetSkiProto {
   }
 
   /// <summary>
-  ///server: game over, here's the winning team, ok?
+  ///server: game over, here's the winning team
   /// </summary>
   public sealed partial class StopGameMessage : global::Google.Protobuf.IMessage<StopGameMessage> {
     private static readonly global::Google.Protobuf.MessageParser<StopGameMessage> _parser = new global::Google.Protobuf.MessageParser<StopGameMessage>(() => new StopGameMessage());
@@ -2776,7 +2422,7 @@ namespace JetSkiProto {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[11]; }
+      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2908,7 +2554,7 @@ namespace JetSkiProto {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[12]; }
+      get { return global::JetSkiProto.JetSkiProtoReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2937,6 +2583,9 @@ namespace JetSkiProto {
           break;
         case GameOnOneofCase.StopGameMsg:
           StopGameMsg = other.StopGameMsg.Clone();
+          break;
+        case GameOnOneofCase.ReplayMsg:
+          ReplayMsg = other.ReplayMsg.Clone();
           break;
         case GameOnOneofCase.AckMsg:
           AckMsg = other.AckMsg.Clone();
@@ -2995,8 +2644,19 @@ namespace JetSkiProto {
       }
     }
 
+    /// <summary>Field number for the "replay_msg" field.</summary>
+    public const int ReplayMsgFieldNumber = 5;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::JetSkiProto.ReplayMessage ReplayMsg {
+      get { return gameOnCase_ == GameOnOneofCase.ReplayMsg ? (global::JetSkiProto.ReplayMessage) gameOn_ : null; }
+      set {
+        gameOn_ = value;
+        gameOnCase_ = value == null ? GameOnOneofCase.None : GameOnOneofCase.ReplayMsg;
+      }
+    }
+
     /// <summary>Field number for the "ack_msg" field.</summary>
-    public const int AckMsgFieldNumber = 5;
+    public const int AckMsgFieldNumber = 6;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public global::JetSkiProto.AckMessage AckMsg {
       get { return gameOnCase_ == GameOnOneofCase.AckMsg ? (global::JetSkiProto.AckMessage) gameOn_ : null; }
@@ -3014,7 +2674,8 @@ namespace JetSkiProto {
       ServerStateMsg = 2,
       ScoreMsg = 3,
       StopGameMsg = 4,
-      AckMsg = 5,
+      ReplayMsg = 5,
+      AckMsg = 6,
     }
     private GameOnOneofCase gameOnCase_ = GameOnOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3045,6 +2706,7 @@ namespace JetSkiProto {
       if (!object.Equals(ServerStateMsg, other.ServerStateMsg)) return false;
       if (!object.Equals(ScoreMsg, other.ScoreMsg)) return false;
       if (!object.Equals(StopGameMsg, other.StopGameMsg)) return false;
+      if (!object.Equals(ReplayMsg, other.ReplayMsg)) return false;
       if (!object.Equals(AckMsg, other.AckMsg)) return false;
       if (GameOnCase != other.GameOnCase) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -3057,6 +2719,7 @@ namespace JetSkiProto {
       if (gameOnCase_ == GameOnOneofCase.ServerStateMsg) hash ^= ServerStateMsg.GetHashCode();
       if (gameOnCase_ == GameOnOneofCase.ScoreMsg) hash ^= ScoreMsg.GetHashCode();
       if (gameOnCase_ == GameOnOneofCase.StopGameMsg) hash ^= StopGameMsg.GetHashCode();
+      if (gameOnCase_ == GameOnOneofCase.ReplayMsg) hash ^= ReplayMsg.GetHashCode();
       if (gameOnCase_ == GameOnOneofCase.AckMsg) hash ^= AckMsg.GetHashCode();
       hash ^= (int) gameOnCase_;
       if (_unknownFields != null) {
@@ -3088,8 +2751,12 @@ namespace JetSkiProto {
         output.WriteRawTag(34);
         output.WriteMessage(StopGameMsg);
       }
-      if (gameOnCase_ == GameOnOneofCase.AckMsg) {
+      if (gameOnCase_ == GameOnOneofCase.ReplayMsg) {
         output.WriteRawTag(42);
+        output.WriteMessage(ReplayMsg);
+      }
+      if (gameOnCase_ == GameOnOneofCase.AckMsg) {
+        output.WriteRawTag(50);
         output.WriteMessage(AckMsg);
       }
       if (_unknownFields != null) {
@@ -3111,6 +2778,9 @@ namespace JetSkiProto {
       }
       if (gameOnCase_ == GameOnOneofCase.StopGameMsg) {
         size += 1 + global::Google.Protobuf.CodedOutputStream.ComputeMessageSize(StopGameMsg);
+      }
+      if (gameOnCase_ == GameOnOneofCase.ReplayMsg) {
+        size += 1 + global::Google.Protobuf.CodedOutputStream.ComputeMessageSize(ReplayMsg);
       }
       if (gameOnCase_ == GameOnOneofCase.AckMsg) {
         size += 1 + global::Google.Protobuf.CodedOutputStream.ComputeMessageSize(AckMsg);
@@ -3150,6 +2820,12 @@ namespace JetSkiProto {
             StopGameMsg = new global::JetSkiProto.StopGameMessage();
           }
           StopGameMsg.MergeFrom(other.StopGameMsg);
+          break;
+        case GameOnOneofCase.ReplayMsg:
+          if (ReplayMsg == null) {
+            ReplayMsg = new global::JetSkiProto.ReplayMessage();
+          }
+          ReplayMsg.MergeFrom(other.ReplayMsg);
           break;
         case GameOnOneofCase.AckMsg:
           if (AckMsg == null) {
@@ -3207,6 +2883,15 @@ namespace JetSkiProto {
             break;
           }
           case 42: {
+            global::JetSkiProto.ReplayMessage subBuilder = new global::JetSkiProto.ReplayMessage();
+            if (gameOnCase_ == GameOnOneofCase.ReplayMsg) {
+              subBuilder.MergeFrom(ReplayMsg);
+            }
+            input.ReadMessage(subBuilder);
+            ReplayMsg = subBuilder;
+            break;
+          }
+          case 50: {
             global::JetSkiProto.AckMessage subBuilder = new global::JetSkiProto.AckMessage();
             if (gameOnCase_ == GameOnOneofCase.AckMsg) {
               subBuilder.MergeFrom(AckMsg);

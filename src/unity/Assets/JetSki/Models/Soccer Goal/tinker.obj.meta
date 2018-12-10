@@ -1,53 +1,18 @@
 fileFormatVersion: 2
-guid: 5dd54889312d9584f9309601f0f68918
+guid: 311724aa8cfc4e2449987d46b7d0550a
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
-    100000: //RootNode
-    400000: //RootNode
-    2100000: Walls
-    2100002: Poison
-    2100004: Dark_Grey
-    2100006: Light_Grey
-    2100008: offWhite
-    2100010: Lighter_Grey
-    2300000: //RootNode
-    3300000: //RootNode
-    4300000: Basic_Level
-    7400000: Default Take
-    9500000: //RootNode
+    100000: group_0_-328966
+    100002: //RootNode
+    400000: group_0_-328966
+    400002: //RootNode
+    2100000: color_-328966
+    2300000: group_0_-328966
+    3300000: group_0_-328966
+    4300000: group_0_-328966
     2186277476908879412: ImportLogs
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Dark_Grey
-    second: {fileID: 2100000, guid: 17af4b6b051aa8245942cb31ad52718e, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Light_Grey
-    second: {fileID: 2100000, guid: 9bd0ca41a07615b4b821ca1a645cf263, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Lighter_Grey
-    second: {fileID: 2100000, guid: 257effa71269af2449b1d1fd52cc3ad5, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Poison
-    second: {fileID: 2100000, guid: 3af7ea07dbe8880499a9c9b11a4c38dc, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Walls
-    second: {fileID: 2100000, guid: a58d4ab1686f8f644ad511df8333eac6, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: offWhite
-    second: {fileID: 2100000, guid: 12f3bbe57c0e2ec45a21f4debcac4b66, type: 2}
+  externalObjects: {}
   materials:
     importMaterials: 1
     materialName: 0
@@ -99,7 +64,7 @@ ModelImporter:
     secondaryUVPackMargin: 4
     useFileScale: 1
     previousCalculatedGlobalScale: 1
-    hasPreviousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
@@ -123,7 +88,7 @@ ModelImporter:
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 2
+  animationType: 0
   humanoidOversampling: 1
   additionalBone: 0
   userData: 

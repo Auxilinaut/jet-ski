@@ -1,27 +1,15 @@
 syntax = "proto3";
 package jet_ski;
-
+import "jet_ski_types.proto";
+import "jet_ski_saving.proto";
 option csharp_namespace = "JetSkiProto";
-
-message MyQuaternion {
-    float x = 1;
-    float y = 2;
-    float z = 3;
-    float w = 4;
-}
-
-message MyVector3 {
-    float x = 1;
-    float y = 2;
-    float z = 3;
-}
 
 //client: here's my name, can I join?
 message JoinServerMessage {
     string name = 1;
 }
 
-//server: ok here's your id, load this arena, and wait at this spot with the ball and whoever else is in there, ok?
+//server: ok here's your id, load this arena, and wait at this spot with the ball and whoever else is in there
 message AcceptJoinMessage {
     uint32 id = 1;
     string arena = 2;
@@ -31,7 +19,7 @@ message AcceptJoinMessage {
     repeated NewPlayerMessage new_player_msg = 6;
 }
 
-//server: everybody here's another client, ok?
+//server: everybody here's another client
 message NewPlayerMessage {
     uint32 id = 1;
     string name = 2;
@@ -40,11 +28,11 @@ message NewPlayerMessage {
     MyQuaternion rotation = 5;
 }
 
-//server: let's start, ok?
+//server: let's start
 message StartGameMessage {
 }
 
-//ok
+//this may be useless
 message AckMessage {
     uint32 id = 1;
 }
@@ -56,7 +44,9 @@ message GameOffMessage {
         AcceptJoinMessage accept_join_msg = 2;
         NewPlayerMessage new_player_msg = 3;
         StartGameMessage start_game_msg = 4;
-        AckMessage ack_msg = 5;
+        ReplayMessage replay_msg = 5;
+        SaveMessage save_msg = 6;
+        AckMessage ack_msg = 7;
     }
 }
 
@@ -87,7 +77,7 @@ message StateMessage {
     bool rocket_boosting = 9;
 }
 
-//server: time out, I'll let you know when to start again, ok?
+//server: time out, I'll let you know when to start again
 message ScoreMessage {
     uint32 id = 1;
     uint32 score = 2;
@@ -95,7 +85,7 @@ message ScoreMessage {
     uint32 team = 4;
 }
 
-//server: game over, here's the winning team, ok?
+//server: game over, here's the winning team
 message StopGameMessage {
     uint32 team = 1;
 }
@@ -107,6 +97,7 @@ message GameOnMessage {
         StateMessage server_state_msg = 2;
         ScoreMessage score_msg = 3;
         StopGameMessage stop_game_msg = 4;
-        AckMessage ack_msg = 5;
+        ReplayMessage replay_msg = 5;
+        AckMessage ack_msg = 6;
     }
 }

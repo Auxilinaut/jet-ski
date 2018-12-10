@@ -1,8 +1,8 @@
 
 using System.Collections;
-using System.Collections.Generic;       //Allows us to use Lists. 
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;                   //Allows us to use UI.
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Net;
 using System.Net.Sockets;
@@ -54,8 +54,6 @@ namespace JetSki{
         /// </summary>
         public List<Client> clientList = new List<Client>();
 
-        //public static byte[] theData;
-
         public UdpConnectedClient connection;
         #endregion
 
@@ -96,7 +94,6 @@ namespace JetSki{
         
         void ClientInitGame()
         {
-            //if (!SceneManager.GetActiveScene().name.Equals("mainmenu"))
             mainMenuManager.enabled = true;
             Globals.inMainMenu = true;
             SceneManager.LoadScene("mainmenu");
@@ -118,23 +115,7 @@ namespace JetSki{
         {
             mainMenuManager.enabled = false;
             clientManager.enabled = true;
-            
-            /*Scene gameScene = SceneManager.GetSceneByName("instance");
-            SceneManager.SetActiveScene(gameScene);
-            SceneManager.UnloadScene("mainmenu");*/
-
-            //
-            //StartCoroutine(LoadNewScene());
         }
-
-        /*IEnumerator LoadNewScene()
-        {
-            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("instance");
-            while (!asyncLoad.isDone)
-            {
-                yield return null;
-            }
-        }*/
 
         private void OnApplicationQuit()
         {
