@@ -42,7 +42,6 @@ namespace JetSki{
 		private Vector3 client_pos_error;
 		private Quaternion client_rot_error;
 		private Queue<GameManager.Client> client_queue = new Queue<GameManager.Client>();
-		//private Queue<StateMessage>[] other_player_state_msgs;
 
 		public static ClientManager instance;
 		private GameManager gameManager;
@@ -54,6 +53,7 @@ namespace JetSki{
 		ReplayMessage replay_msg = new ReplayMessage();
 		volatile StateMessage state_msg = new StateMessage();
 		volatile ReplayStateMessage replay_state_msg = new ReplayStateMessage();
+		//private Queue<ReplayStateMessage> replay_state_msgs;
 
 		void Start () {
 			instance = this;
@@ -106,7 +106,16 @@ namespace JetSki{
 				}
 			}
 
-			if (Globals.gameOn)
+			if (Globals.inReplay)
+			{
+				replay_state_msg = replay_msg.ReplayStateMsgs.Last();
+				if(replay_msg.ReplayStateMsgs.Any()) //prevent IndexOutOfRangeException for empty list
+					replay_msg.ReplayStateMsgs.RemoveAt(replay_msg.ReplayStateMsgs.Count-1);
+
+				GameObject go = players.First(p => p.name == replay_state_msg.Id.ToString());
+				go.transform.SetPositionAndRotation(replay_state_msg.Position,replay_state_msg.Rotation);
+			} 
+			else if (Globals.gameOn)
 			{
 				if (myGuy)
 				{
@@ -163,16 +172,17 @@ namespace JetSki{
 				this.client_timer = client_timer;
 				this.client_tick_number = client_tick_number;
 			}
-			else if (Globals.inReplay)
-			{
-				
-			}
 		}
 
 		private bool ClientHasStateMessage()
         {
             return client_state_msgs.Count > 0;// && Time.time >= this.client_state_msgs.Peek().DeliveryTime; //JUST COUNT FOR NOW, NOT TIME-BASED
         }
+
+		private bool ClientHasReplayStateMessage()
+		{
+			return replay_msg.ReplayStateMsgs.Count > 0;
+		}
 
 		internal static void HandleData(byte[] data, IPEndPoint iPEndPoint)
 		{
@@ -192,11 +202,15 @@ namespace JetSki{
 						Debug.Log("Name: " + msg.ScoreMsg.Name);
 						Debug.Log("Team: " + msg.ScoreMsg.Team);
 						UpdateScore(msg.ScoreMsg.Id, msg.ScoreMsg.Score, msg.ScoreMsg.Name, msg.ScoreMsg.Team);
-						ShowReplay();
+						Globals.inReplay = true;
 					break;
 
 					case 4: //*****STOP GAME (UNTESTED)*****
 						Globals.gameOn = false;
+					break;
+
+					case 6: //*****RESUME GAME AFTER REPLAY (UNTESTED)*****
+						Globals.inReplay = false; //using ack message because I did not think this through hard enough while setting up the message flow
 					break;
 				}
 			}
@@ -226,11 +240,6 @@ namespace JetSki{
 				}
 			}
 		}
-
-        private static void ShowReplay()
-        {
-            
-        }
 
         private static void UpdateScore(uint id, uint score, string name, uint team)
         {
