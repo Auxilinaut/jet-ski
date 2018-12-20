@@ -53,7 +53,11 @@ namespace JetSki{
 		ReplayMessage replay_msg = new ReplayMessage();
 		volatile StateMessage state_msg = new StateMessage();
 		volatile ReplayStateMessage replay_state_msg = new ReplayStateMessage();
-		//private Queue<ReplayStateMessage> replay_state_msgs;
+		private uint replay_start_tick = 0;
+		private uint replay_curr_tick = 0;
+		private int replay_curr_index = 0;
+		IOrderedEnumerable<ReplayStateMessage> sortedReplayStateMsgs;
+		private bool sent_ack = false;
 
 		void Start () {
 			instance = this;
@@ -83,20 +87,24 @@ namespace JetSki{
 
 				if (client.id == 9001) //BALL
 				{
-					newGuy = Instantiate(ball_prefab, client.position, client.rotation);
+					newGuy = Instantiate(ball_prefab, client.position, client.rotation) as GameObject;
 					newGuy.name = client.id.ToString();
 					players.Add(newGuy);
 				}
 				else if (client.id > 9001 && client.id <= 9001 + Globals.barrelCount) //FUEL PACK
 				{
-					newGuy = Instantiate(fuel_prefab, client.position, client.rotation);
+					newGuy = Instantiate(fuel_prefab, client.position, client.rotation) as GameObject;
 					newGuy.name = client.id.ToString();
 					players.Add(newGuy);
 				}
 				else //PLAYER
 				{
-					newGuy = Instantiate(player_prefab, client.position, client.rotation);
+					newGuy = Instantiate(player_prefab, client.position, client.rotation) as GameObject;
 					newGuy.name = client.id.ToString();
+					//JetSkiOptions jso = newGuy.GetComponent<JetSkiOptions>();
+					//jso.enabled = true;
+					//jso.InitializeStuff();
+					//newGuy.transform.Find("JetFire").gameObject.GetComponent<ParticleSystem>().Play()
 					players.Add(newGuy);
 				}
 
@@ -108,16 +116,29 @@ namespace JetSki{
 
 			if (Globals.inReplay)
 			{
-				replay_state_msg = replay_msg.ReplayStateMsgs.Last();
-				if(replay_msg.ReplayStateMsgs.Any()) //prevent IndexOutOfRangeException for empty list
-					replay_msg.ReplayStateMsgs.RemoveAt(replay_msg.ReplayStateMsgs.Count-1);
-
-				GameObject go = players.First(p => p.name == replay_state_msg.Id.ToString());
-				go.transform.SetPositionAndRotation(replay_state_msg.Position,replay_state_msg.Rotation);
+				if(replay_curr_tick < client_tick_number)
+				{
+					while (sortedReplayStateMsgs.ElementAt(replay_curr_index).TickNumber == replay_curr_tick)
+					{
+						//DebugConsole.Log("In replay with index " + replay_curr_index + " and tick " + replay_curr_tick);
+						ReplayStateMessage rsm = sortedReplayStateMsgs.ElementAt(replay_curr_index);
+						GameObject go = players.First(p => p.name == rsm.Id.ToString());
+						if(go != null) go.transform.SetPositionAndRotation(rsm.Position, rsm.Rotation);
+						replay_curr_index++;
+					}
+					replay_curr_tick++;
+				}
+				else if (!sent_ack)
+				{
+					sent_ack = true;
+					GameOnMessage gameOnMessage = new GameOnMessage();
+					gameOnMessage.AckMsg = new AckMessage();
+					gameManager.connection.Send(gameOnMessage.ToByteArray(), gameManager.clientList[0].ipEndPoint);
+				}
 			} 
 			else if (Globals.gameOn)
 			{
-				if (myGuy)
+				if (myGuy != null)
 				{
 					Camera.main.transform.position = myGuy.transform.GetChild(1).position;
 					Camera.main.transform.LookAt(myGuy.transform.position, Vector3.up);
@@ -134,8 +155,8 @@ namespace JetSki{
 				Inputs inputs = new Inputs{
 					Forward = 0 + Input.GetAxis("Vertical"),
 					Sideways = 0 + Input.GetAxis("Horizontal"),
-					RocketBoosting = Input.GetMouseButton(0) | Input.GetButton("Fire2"),
-					WaterBoosting = Input.GetMouseButton(1) | Input.GetButton("Fire1")
+					WaterBoosting = Input.GetMouseButton(1) | Input.GetButton("Fire1"),
+					RocketBoosting = Input.GetMouseButton(0) | Input.GetButton("Fire2")
 				};
 
 				//***SEND THE STUFF (UNSTABLE)***
@@ -166,7 +187,15 @@ namespace JetSki{
 					replay_msg.ReplayStateMsgs.Add(replay_state_msg);
 
 					GameObject go = players.First(p => p.name == state_msg.Id.ToString());
-					go.transform.SetPositionAndRotation(state_msg.Position,state_msg.Rotation);
+					if(go != null)
+					{
+						go.transform.SetPositionAndRotation(state_msg.Position, state_msg.Rotation);
+						if (state_msg.Id < 9001) //it's a player
+						{
+							go.GetComponent<JetSkiOptions>().rocketBoosting = state_msg.RocketBoosting;
+							go.GetComponent<JetSkiOptions>().waterBoosting = state_msg.WaterBoosting;
+						}
+					}
 				}
 
 				this.client_timer = client_timer;
@@ -195,13 +224,21 @@ namespace JetSki{
 						instance.client_state_msgs.Enqueue(msg.ServerStateMsg);
 					break;
 
-					case 3: //*****SCORE UDPATE (UNTESTED)*****
-						Debug.Log("Somebody scored.");
-						Debug.Log("ID: " + msg.ScoreMsg.Id);
-						Debug.Log("Score: " + msg.ScoreMsg.Score);
-						Debug.Log("Name: " + msg.ScoreMsg.Name);
-						Debug.Log("Team: " + msg.ScoreMsg.Team);
-						UpdateScore(msg.ScoreMsg.Id, msg.ScoreMsg.Score, msg.ScoreMsg.Name, msg.ScoreMsg.Team);
+					case 3: //*****SCORE UPDATE (UNTESTED)*****
+						//UpdateScore(msg.ScoreMsg.Id, msg.ScoreMsg.Score, msg.ScoreMsg.Name, msg.ScoreMsg.Team);
+
+						instance.replay_start_tick = instance.client_tick_number - 300;
+						if (instance.replay_start_tick < 0) instance.replay_start_tick = 0;
+						instance.replay_curr_tick = instance.replay_start_tick;
+
+						instance.sortedReplayStateMsgs = instance.replay_msg.ReplayStateMsgs.OrderBy(r => r.TickNumber);
+						//DebugConsole.Log("Sorted replay messages");
+
+						instance.replay_curr_index = Globals.FindIndex(instance.sortedReplayStateMsgs, rsm => rsm.TickNumber == instance.replay_start_tick);
+						//DebugConsole.Log("Current replay index: " + instance.replay_curr_index);
+
+						instance.sent_ack = false;
+
 						Globals.inReplay = true;
 					break;
 

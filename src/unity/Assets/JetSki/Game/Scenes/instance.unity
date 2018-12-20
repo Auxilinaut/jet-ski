@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 227134471}
   - component: {fileID: 227134472}
   - component: {fileID: 227134474}
+  - component: {fileID: 227134475}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -239,7 +240,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   linSpeed: 200
-  rotSpeed: 1000
+  rotSpeed: 200
   simForwardInput: 0
   _requireLMBToMove: 0
   _fixedDt: 0.016666668
@@ -331,6 +332,18 @@ MonoBehaviour:
   m_BeforeTransparentBundles: []
   m_BeforeStackBundles: []
   m_AfterStackBundles: []
+--- !u!114 &227134475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 227134465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c97e28b142968241af799e503495ff4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 2100000, guid: cb84052033a43d84787af32527b10440, type: 2}
 --- !u!1001 &343876100
 Prefab:
   m_ObjectHideFlags: 0

@@ -86,6 +86,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4841997831093284}
+  - component: {fileID: 114620634778733450}
   - component: {fileID: 54882583719651580}
   - component: {fileID: 114791055451789026}
   m_Layer: 0
@@ -947,6 +948,19 @@ MonoBehaviour:
   _cullExcludeLayers: []
   _cullIncludeLayers: []
   _logErrorIfLayerMissing: 1
+--- !u!114 &114620634778733450
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1246904465122450}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ca24dce2a4453f40b661f2917508125, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rocketBoosting: 0
+  waterBoosting: 0
 --- !u!114 &114791055451789026
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -965,7 +979,7 @@ MonoBehaviour:
   _boyancyTorque: 5
   _forceHeightOffset: -0.05
   _enginePower: 25
-  _turnPower: 12
+  _turnPower: 10
   _boatWidth: 4
   _dragInWaterUp: 3
   _dragInWaterRight: 2

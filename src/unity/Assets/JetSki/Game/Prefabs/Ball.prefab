@@ -73,6 +73,7 @@ GameObject:
   - component: {fileID: 4807318090985130}
   - component: {fileID: 54418924838749740}
   - component: {fileID: 114374052944451834}
+  - component: {fileID: 114516402542919262}
   m_Layer: 0
   m_Name: Ball
   m_TagString: Untagged
@@ -226,7 +227,7 @@ Rigidbody:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1774162488693126}
   serializedVersion: 2
-  m_Mass: 0.1
+  m_Mass: 0.01
   m_Drag: 0
   m_AngularDrag: 0
   m_UseGravity: 1
@@ -277,6 +278,19 @@ MonoBehaviour:
   _steerBias: 0
   RocketThrust: {x: 0, y: 0, z: 100000}
   WaterThrust: NaN
+--- !u!114 &114516402542919262
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1774162488693126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04a6f5c00c59d804aa8b3f5544439989, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  touchedLastId: 0
+  somebodyScored: 0
 --- !u!114 &114724747904965948
 MonoBehaviour:
   m_ObjectHideFlags: 1

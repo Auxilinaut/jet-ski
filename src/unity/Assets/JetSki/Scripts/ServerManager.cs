@@ -25,6 +25,7 @@ namespace JetSki
 		//private Queue<GameOffMessage>[] game_off_msgs;
 		private Queue<InputMessage> server_input_msgs = new Queue<InputMessage>();
 		private Queue<GameManager.Client> client_queue = new Queue<GameManager.Client>();
+		private int replayWatchers;
 
 		public static ServerManager instance;
 		private GameManager gameManager;
@@ -41,6 +42,8 @@ namespace JetSki
 			else if (Globals.arena == "hydrobase")
 				*/placement.y = 100;
 
+			replayWatchers = player_amount;
+
 			GameManager.Client client = new GameManager.Client {
 				id = 9001,
 				name = "Ball",
@@ -53,7 +56,7 @@ namespace JetSki
 			for (var i=0; i<Globals.barrelCount; i++)
 			{
 				float angle = i * Mathf.PI / 3;
-   				Vector3 pos = new Vector3(placement.x + Mathf.Cos(angle) * 100, 80, placement.z + (Mathf.Sin(angle) * 100)); //placement of new client
+   				Vector3 pos = new Vector3(placement.x + Mathf.Cos(angle) * 100, 80, placement.z + (Mathf.Sin(angle) * 100)); //barrel placement
 				client = new GameManager.Client {
 					id = (uint)(9002 + i),
 					name = "Barrel " + i,
@@ -73,75 +76,163 @@ namespace JetSki
 				GameObject newGuy;
 				if (client.id == 9001) //ball
 				{
-					newGuy = Instantiate(instance.ball_prefab, client.position, client.rotation);
+					newGuy = Instantiate(instance.ball_prefab, client.position, client.rotation) as GameObject;
 					newGuy.name = client.id.ToString();
 					server_players.Add(newGuy);
 				}
 				else if (client.id > 9001 && client.id <= 9001 + Globals.barrelCount) //fuel
 				{
-					newGuy = Instantiate(instance.server_fuel_prefab, client.position, client.rotation);
+					newGuy = Instantiate(instance.server_fuel_prefab, client.position, client.rotation) as GameObject;
 					newGuy.name = client.id.ToString();
 					server_players.Add(newGuy);
 				}
 				else
 				{
-					newGuy = Instantiate(instance.server_player_prefab, client.position, client.rotation);
+					newGuy = Instantiate(instance.server_player_prefab, client.position, client.rotation) as GameObject;
 					newGuy.name = client.id.ToString();
 					server_players.Add(newGuy);
 				}
 			}
-			if (Globals.gameOn)
+
+			if (Globals.inReplay)
 			{
-				float fdt = Time.fixedDeltaTime;
-				uint server_tick_number = this.server_tick_number;
-				uint server_tick_accumulator = this.server_tick_accumulator;
-
-				while (this.server_input_msgs.Count > 0) //was if instead of while so idk if it will work tbh
+				if (replayWatchers == 0)
 				{
-					InputMessage input_msg = this.server_input_msgs.Dequeue();
-					GameObject go = server_players.First(p => p.name == input_msg.Id.ToString());
-					//Debug.Log(BoatAlignNormal.instance);
-					//Debug.Log(go.GetComponent<Rigidbody>());
-					if (input_msg.Inputs.Count > 0)
-						BoatAlignNormal.instance.PrePhysicsStep(go.GetComponent<Rigidbody>(), input_msg.Inputs[0], fdt, Time.deltaTime);
-					else
-						BoatAlignNormal.instance.PrePhysicsStep(go.GetComponent<Rigidbody>(), new Inputs{}, fdt, Time.deltaTime);
+					Debug.Log("Resuming game");
+					Globals.inReplay = false;
+					replayWatchers = player_amount;
+					
+					GameOnMessage unpauseGameMsg = new GameOnMessage();
+					unpauseGameMsg.AckMsg = new AckMessage();
+					BroadcastGameOnMessage(unpauseGameMsg);
+					Debug.Log("Sent resume game msg");
+				}
+			}
+			else if (Globals.gameOn)
+			{
+				if (server_players[0].GetComponent<Scorer>().somebodyScored)
+				{
+					Globals.inReplay = true;
+					server_players[0].GetComponent<Scorer>().somebodyScored = false;
+					server_input_msgs.Clear();
 
-					if(Vector3.Distance(placement, go.transform.position) > 750) //keep within dome
+					server_players[0].transform.position = placement; //ball placement
+					for (var i=1; i<=Globals.barrelCount; i++)
 					{
-						go.GetComponent<Rigidbody>().AddForce((placement - go.transform.position).normalized * 100 * fdt, ForceMode.VelocityChange);
+						float angle = i * Mathf.PI / 3;
+						Vector3 pos = new Vector3(placement.x + Mathf.Cos(angle) * 100, 80, placement.z + (Mathf.Sin(angle) * 100)); //barrel placement
+						server_players[i].transform.position = pos;
 					}
-				}
+					for (var i=Globals.barrelCount+1; i<server_players.Count; i++)
+					{
+						float angle = i * Mathf.PI / 3;
+						Vector3 pos = new Vector3(placement.x + Mathf.Cos(angle) * 100, 50, placement.z + (Mathf.Sin(angle) * 100)); //player placement
+						server_players[i].transform.position = pos;
+					}
+					Debug.Log("Reset positions");
 
-				BoatAlignNormal.instance.PrePhysicsStep(server_players[0].GetComponent<Rigidbody>(), new Inputs{}, fdt, Time.deltaTime);
-				for (var i=0; i<Globals.barrelCount; i++)
-				{
-					BoatAlignNormal.instance.PrePhysicsStep(server_players[i+1].GetComponent<Rigidbody>(), new Inputs{}, fdt, Time.deltaTime);
-				}
-
-				Physics.Simulate(fdt);
-
-				for (var i=0; i<gameManager.clientList.Count;i++)
-				{
-					GameObject pkmngo = server_players.First(p => p.name == gameManager.clientList[i].id.ToString());
-					Rigidbody rb = pkmngo.GetComponent<Rigidbody>();
-
+					//send score msg
 					GameOnMessage gameOnMessage = new GameOnMessage();
-					gameOnMessage.ServerStateMsg = new StateMessage{
-						Id = gameManager.clientList[i].id,
-						DeliveryTime = Time.time + gameManager.latency,// + 0.1f;//+ this._pingTime[this._pingTime.Count-1];
-						TickNumber = server_tick_number,
-						Position = rb.transform.position,
-						Rotation = rb.transform.rotation,
-						Velocity = rb.velocity,
-						AngularVelocity = rb.angularVelocity
+					gameOnMessage.ScoreMsg = new ScoreMessage{
+						Id = server_players[0].GetComponent<Scorer>().touchedLastId,
+						Score = 0,
+						Name = "",
+						Team = 0
 					};
 
 					BroadcastGameOnMessage(gameOnMessage);
+					Debug.Log("Sent scoremsg");
 				}
+				else
+				{
+					float fdt = Time.fixedDeltaTime;
+					uint server_tick_number = this.server_tick_number;
+					uint server_tick_accumulator = this.server_tick_accumulator;
 
-				this.server_tick_number = server_tick_number;
-				this.server_tick_accumulator = server_tick_accumulator;
+					while (this.server_input_msgs.Count > 0) //was if instead of while so idk if it will work tbh
+					{
+						InputMessage input_msg = this.server_input_msgs.Dequeue();
+						GameObject go = server_players.First(p => p.name == input_msg.Id.ToString());
+						//Debug.Log(BoatAlignNormal.instance);
+						//Debug.Log(go.GetComponent<Rigidbody>());
+						if (input_msg.Inputs.Count > 0)
+						{
+							if (input_msg.Id < 9001)
+							{
+								go.GetComponent<JetSkiServerOptions>().rocketBoosting = input_msg.Inputs[0].RocketBoosting;
+								go.GetComponent<JetSkiServerOptions>().waterBoosting = input_msg.Inputs[0].WaterBoosting;
+							}
+
+							BoatAlignNormal.instance.PrePhysicsStep(go.GetComponent<Rigidbody>(), input_msg.Inputs[0], fdt, Time.deltaTime);
+						}
+						else
+						{
+							BoatAlignNormal.instance.PrePhysicsStep(go.GetComponent<Rigidbody>(), new Inputs{}, fdt, Time.deltaTime);
+						}
+
+						if(Vector3.Distance(placement, go.transform.position) > 750) //keep within dome
+						{
+							go.GetComponent<Rigidbody>().AddForce((placement - go.transform.position).normalized * 200 * fdt, ForceMode.VelocityChange);
+						}
+					}
+
+					BoatAlignNormal.instance.PrePhysicsStep(server_players[0].GetComponent<Rigidbody>(), new Inputs{}, fdt, Time.deltaTime);
+					if(Vector3.Distance(placement, server_players[0].transform.position) > 750) //keep within dome
+					{
+						server_players[0].GetComponent<Rigidbody>().AddForce((placement - server_players[0].transform.position).normalized * 200 * fdt, ForceMode.VelocityChange);
+					}
+
+					for (var i=0; i<Globals.barrelCount; i++)
+					{
+						BoatAlignNormal.instance.PrePhysicsStep(server_players[i+1].GetComponent<Rigidbody>(), new Inputs{}, fdt, Time.deltaTime);
+						if(Vector3.Distance(placement, server_players[i+1].transform.position) > 750) //keep within dome
+						{
+							server_players[i+1].GetComponent<Rigidbody>().AddForce((placement - server_players[i+1].transform.position).normalized * 200 * fdt, ForceMode.VelocityChange);
+						}
+					}
+
+					Physics.Simulate(fdt);
+
+					for (var i=0; i<gameManager.clientList.Count;i++)
+					{
+						GameObject pkmngo = server_players.First(p => p.name == gameManager.clientList[i].id.ToString());
+						Rigidbody rb = pkmngo.GetComponent<Rigidbody>();
+
+						GameOnMessage gameOnMessage = new GameOnMessage();
+						/*if (gameManager.clientList[i].id < 9001)
+						{
+							if (System.Convert.ToUInt16(pkmngo.name) < 9001) Debug.Log("Player ID: " + gameManager.clientList[i].id + " WaterBoosting: " + pkmngo.GetComponent<JetSkiServerOptions>().waterBoosting.ToString() + " RocketBoosting: " + pkmngo.GetComponent<JetSkiServerOptions>().rocketBoosting.ToString());
+							*/gameOnMessage.ServerStateMsg = new StateMessage{
+								Id = gameManager.clientList[i].id,
+								DeliveryTime = Time.time + gameManager.latency,// + 0.1f;//+ this._pingTime[this._pingTime.Count-1];
+								TickNumber = server_tick_number,
+								Position = rb.transform.position,
+								Rotation = rb.transform.rotation,
+								Velocity = rb.velocity,
+								AngularVelocity = rb.angularVelocity,
+								WaterBoosting = (gameManager.clientList[i].id < 9001) ? pkmngo.GetComponent<JetSkiServerOptions>().waterBoosting : true,
+								RocketBoosting = (gameManager.clientList[i].id < 9001) ? pkmngo.GetComponent<JetSkiServerOptions>().rocketBoosting : true
+							};
+						/*}
+						else
+						{
+							gameOnMessage.ServerStateMsg = new StateMessage{
+								Id = gameManager.clientList[i].id,
+								DeliveryTime = Time.time + gameManager.latency,// + 0.1f;//+ this._pingTime[this._pingTime.Count-1];
+								TickNumber = server_tick_number,
+								Position = rb.transform.position,
+								Rotation = rb.transform.rotation,
+								Velocity = rb.velocity,
+								AngularVelocity = rb.angularVelocity
+							};
+						}*/
+
+						BroadcastGameOnMessage(gameOnMessage);
+					}
+
+					this.server_tick_number = server_tick_number;
+					this.server_tick_accumulator = server_tick_accumulator;
+				}
 			}
 			else if (gameManager.clientList.Count == 1 + Globals.barrelCount + player_amount)
 			{
@@ -166,8 +257,8 @@ namespace JetSki
 						//instance.server_input_msgs[instance.gameManager.clientList.FindIndex(c => c.id == msg.ClientInputMsg.Id)].Enqueue(msg.ClientInputMsg);
 					break;
 
-					case 5: //*****CLIENT ACK RECEIVED *****
-						//Debug.Log("Ack from client " + msg.AckMsg.Id);
+					case 6: //*****CLIENT ACK RECEIVED (UNTESTED)***** (right now just using this for when clients are done watching replay)
+						instance.replayWatchers--;
 					break;
 				}
 			}

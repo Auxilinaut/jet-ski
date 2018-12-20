@@ -10,7 +10,7 @@ Shader "Snow Particle" {
 		Category{
 		Tags { "Queue" = "Transparent" "IgnoreProjector" = "True" "RenderType" = "Transparent" }
 		Blend SrcAlpha One
-		Lighting Off
+		Lighting On
 		ColorMask RGB
 		Cull Off ZWrite Off
 
