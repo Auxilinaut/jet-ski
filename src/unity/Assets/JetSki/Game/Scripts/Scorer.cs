@@ -16,14 +16,14 @@ namespace JetSki{
 			if(other == "GoalRed")
 			{
 				Debug.Log("Blue team scored.");
-				//somebodyScored = true;
+				somebodyScored = true;
 			}
 			else if (other == "GoalBlue")
 			{
 				Debug.Log("Red team scored.");
-				//somebodyScored = true;
+				somebodyScored = true;
 			}
-			else
+			else if(!somebodyScored)
 			{
 				ushort idTouched = System.Convert.ToUInt16(other);
 				if (idTouched < 9001) touchedLastId = idTouched;

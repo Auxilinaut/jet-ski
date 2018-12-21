@@ -51,8 +51,8 @@ namespace JetSki{
 		private bool CameraLockedOnBall = false;
 
 		ReplayMessage replay_msg = new ReplayMessage();
-		volatile StateMessage state_msg = new StateMessage();
-		volatile ReplayStateMessage replay_state_msg = new ReplayStateMessage();
+		StateMessage state_msg = new StateMessage();
+		ReplayStateMessage replay_state_msg = new ReplayStateMessage();
 		private uint replay_start_tick = 0;
 		private uint replay_curr_tick = 0;
 		private int replay_curr_index = 0;
@@ -118,19 +118,33 @@ namespace JetSki{
 			{
 				if(replay_curr_tick < client_tick_number)
 				{
-					while (sortedReplayStateMsgs.ElementAt(replay_curr_index).TickNumber == replay_curr_tick)
+					if (replay_curr_index < sortedReplayStateMsgs.Count()-1)
 					{
-						//DebugConsole.Log("In replay with index " + replay_curr_index + " and tick " + replay_curr_tick);
-						ReplayStateMessage rsm = sortedReplayStateMsgs.ElementAt(replay_curr_index);
-						GameObject go = players.First(p => p.name == rsm.Id.ToString());
-						if(go != null) go.transform.SetPositionAndRotation(rsm.Position, rsm.Rotation);
-						replay_curr_index++;
+						Camera.main.transform.LookAt(players[0].transform.position, Vector3.up);
+						while (sortedReplayStateMsgs.ElementAt(replay_curr_index).TickNumber == replay_curr_tick)
+						{
+							//Debug.Log("In replay with index " + replay_curr_index + " and tick " + replay_curr_tick);
+							ReplayStateMessage rsm = sortedReplayStateMsgs.ElementAt(replay_curr_index);
+							GameObject go = players.First(p => p.name == rsm.Id.ToString());
+							if(go != null) 
+							{
+								go.transform.SetPositionAndRotation(rsm.Position, rsm.Rotation);
+								if (rsm.Id < 9001) //it's a player
+								{
+									go.GetComponent<JetSkiOptions>().rocketBoosting = rsm.RocketBoosting;
+									go.GetComponent<JetSkiOptions>().waterBoosting = rsm.WaterBoosting;
+								}
+							}
+							replay_curr_index++;
+						}
 					}
+					
 					replay_curr_tick++;
 				}
 				else if (!sent_ack)
 				{
 					sent_ack = true;
+					Debug.Log("Done watching replay");
 					GameOnMessage gameOnMessage = new GameOnMessage();
 					gameOnMessage.AckMsg = new AckMessage();
 					gameManager.connection.Send(gameOnMessage.ToByteArray(), gameManager.clientList[0].ipEndPoint);
@@ -147,7 +161,7 @@ namespace JetSki{
 				float fdt = Time.fixedDeltaTime;
 
 				float client_timer = this.client_timer;
-				uint client_tick_number = this.client_tick_number;
+				//uint client_tick_number = this.client_tick_number;
 				client_timer += Time.deltaTime;
 
 				CameraLockedOnBall = Input.GetKeyDown(KeyCode.Space) | Input.GetButtonDown("Jump");
@@ -170,19 +184,21 @@ namespace JetSki{
 
 				gameManager.connection.Send(gameOnMessage.ToByteArray(), gameManager.clientList[0].ipEndPoint);
 
-				++client_tick_number;
+				client_tick_number++;
 
 				while (this.ClientHasStateMessage())
 				{
 					state_msg = client_state_msgs.Dequeue();
 					
-					replay_state_msg.Id = state_msg.Id;
-					replay_state_msg.DeliveryTime = state_msg.DeliveryTime;
-					replay_state_msg.TickNumber = state_msg.TickNumber;
-					replay_state_msg.Position = state_msg.Position;
-					replay_state_msg.Rotation = state_msg.Rotation;
-					replay_state_msg.RocketBoosting = state_msg.RocketBoosting;
-					replay_state_msg.WaterBoosting = state_msg.WaterBoosting;
+					replay_state_msg = new ReplayStateMessage{
+						Id = state_msg.Id,
+						DeliveryTime = state_msg.DeliveryTime,
+						TickNumber = client_tick_number,//state_msg.TickNumber;
+						Position = state_msg.Position,
+						Rotation = state_msg.Rotation,
+						RocketBoosting = state_msg.RocketBoosting,
+						WaterBoosting = state_msg.WaterBoosting
+					};
 
 					replay_msg.ReplayStateMsgs.Add(replay_state_msg);
 
@@ -199,7 +215,7 @@ namespace JetSki{
 				}
 
 				this.client_timer = client_timer;
-				this.client_tick_number = client_tick_number;
+				//this.client_tick_number = client_tick_number;
 			}
 		}
 
@@ -232,12 +248,17 @@ namespace JetSki{
 						instance.replay_curr_tick = instance.replay_start_tick;
 
 						instance.sortedReplayStateMsgs = instance.replay_msg.ReplayStateMsgs.OrderBy(r => r.TickNumber);
-						//DebugConsole.Log("Sorted replay messages");
+						//Debug.Log("Sorted replay messages");
 
-						instance.replay_curr_index = Globals.FindIndex(instance.sortedReplayStateMsgs, rsm => rsm.TickNumber == instance.replay_start_tick);
-						//DebugConsole.Log("Current replay index: " + instance.replay_curr_index);
+						instance.replay_curr_index = FindTickNumIndex(instance.sortedReplayStateMsgs, instance.replay_start_tick);
+						Debug.Log("Current replay index: " + instance.replay_curr_index);
+						Debug.Log("Total replay messages: " + instance.sortedReplayStateMsgs.Count());
+						Debug.Log("Replay start tick: " + instance.replay_start_tick);
+						Debug.Log("Current tick: " + instance.client_tick_number);
 
 						instance.sent_ack = false;
+
+						Camera.main.transform.position = new Vector3(0, 50, 0);
 
 						Globals.inReplay = true;
 					break;
@@ -317,6 +338,16 @@ namespace JetSki{
 			};
 			client_queue.Enqueue(client);
 			gameManager.clientList.Add(client); //OTHER PLAYER OR BALL
+        }
+
+		public static int FindTickNumIndex(IOrderedEnumerable<ReplayStateMessage> items, uint ticknum) {
+            int index = 0;
+            foreach (var item in items) {
+				//Debug.Log("Checking item " + index + " with ticknum " + item.TickNumber + " and ID " + item.Id);
+                if (item.TickNumber == ticknum) break;
+                index++;
+            }
+            return index;
         }
 
         /*private void ClientStoreCurrentStateAndStep(ref ClientState current_state, Rigidbody rigidbody, Inputs inputs, float fdt, float dt)

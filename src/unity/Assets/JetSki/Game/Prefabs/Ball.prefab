@@ -261,7 +261,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ed9066fe88d1d640889621f4d7684e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _bottomH: -4.04
+  _bottomH: -1.12
   _debugDraw: 0
   _overrideProbeRadius: 0
   _buoyancyCoeff: 50

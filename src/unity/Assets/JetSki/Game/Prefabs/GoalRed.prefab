@@ -19,6 +19,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4115234116373124}
+  - component: {fileID: 64569622789005260}
   m_Layer: 0
   m_Name: GoalRed
   m_TagString: Untagged
@@ -111,4 +112,18 @@ MeshFilter:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1226292672198664}
+  m_Mesh: {fileID: 4300000, guid: 311724aa8cfc4e2449987d46b7d0550a, type: 3}
+--- !u!64 &64569622789005260
+MeshCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1208259133079872}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Convex: 0
+  m_CookingOptions: 14
+  m_SkinWidth: 0.01
   m_Mesh: {fileID: 4300000, guid: 311724aa8cfc4e2449987d46b7d0550a, type: 3}

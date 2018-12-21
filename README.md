@@ -18,10 +18,10 @@ Keyboard: WASD or arrows to move. Left click to rocket jet boost. Right click to
 * Matchmaking
 * Database integration
 * (Stretch goal) Jet ski tuning
-### Final (Complete as of 12/20/2018):
+### Final (Complete as of 12/21/2018):
 * 5 shader effects
-### Final (Incomplete):
 * Instant replay
+### Final (Incomplete):
 * Unlockable jet ski parts
 * Skin store UI
 * Save/load system

@@ -143,7 +143,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1f52ee59dd92ba48911c2057eaa3315, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player_amount: 1
+  player_amount: 2
   server_player_prefab: {fileID: 1246904465122450, guid: c2b2062aca578f540bb0ece007567566,
     type: 2}
   ball_prefab: {fileID: 1774162488693126, guid: 47d22313fc1756641947921554cde1ed,

@@ -193,6 +193,8 @@ namespace JetSki
 
 					Physics.Simulate(fdt);
 
+					++server_tick_number;
+
 					for (var i=0; i<gameManager.clientList.Count;i++)
 					{
 						GameObject pkmngo = server_players.First(p => p.name == gameManager.clientList[i].id.ToString());
@@ -205,7 +207,7 @@ namespace JetSki
 							*/gameOnMessage.ServerStateMsg = new StateMessage{
 								Id = gameManager.clientList[i].id,
 								DeliveryTime = Time.time + gameManager.latency,// + 0.1f;//+ this._pingTime[this._pingTime.Count-1];
-								TickNumber = server_tick_number,
+								TickNumber = server_tick_number, //maybe currently broken
 								Position = rb.transform.position,
 								Rotation = rb.transform.rotation,
 								Velocity = rb.velocity,
