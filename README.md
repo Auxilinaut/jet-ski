@@ -15,15 +15,6 @@ Xbox controller: Left stick to move. A to water jet boost. B to rocket jet boost
 ### Midterm (Complete as of 11/3/2018): 
 * Physics changes per arena
 * 5 obstacles/manipulables
-### Midterm (Incomplete): 
-* Matchmaking
-* Database integration
-* (Stretch goal) Jet ski tuning
 ### Final (Complete as of 12/21/2018):
 * 5 shader effects
 * Instant replay
-### Final (Incomplete):
-* Unlockable jet ski parts
-* Skin store UI
-* Save/load system
-* (Stretch goal) Parallelized prediction using a compute shader
